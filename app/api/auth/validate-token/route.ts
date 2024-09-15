@@ -1,4 +1,4 @@
-import UserLoginsRepository from "@/data/repositories/user-sessions.repository";
+import { AuthService } from "@/services/auth-service";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -13,15 +13,9 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const existingUserLogin = await UserLoginsRepository.getById(jti);
+    const isRefreshTokenValid = await AuthService.isValid(jti);
 
-    if (
-      existingUserLogin.revokedAt ||
-      existingUserLogin.revokedBy ||
-      existingUserLogin.revokedReason ||
-      existingUserLogin.revokedByIp
-    ) {
-      console.log("Token is revoked");
+    if (!isRefreshTokenValid) {
       return NextResponse.json(
         { valid: false, reason: "Token revoked" },
         { status: 200 }

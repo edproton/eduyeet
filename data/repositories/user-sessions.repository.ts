@@ -1,4 +1,4 @@
-import { eq, and, lt, desc, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { userLogins } from "../schema";
 

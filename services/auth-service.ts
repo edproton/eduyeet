@@ -57,11 +57,9 @@ export class AuthService {
     {
       ipAddress,
       userAgent,
-      deviceInfo,
     }: {
       ipAddress: string;
       userAgent?: string;
-      deviceInfo?: Record<string, any>;
     }
   ) {
     const { payload } = await jwtVerify(jwtToken, JWT_SECRET, {
@@ -95,7 +93,6 @@ export class AuthService {
       userId: oldUserSession.userId,
       ipAddress,
       userAgent,
-      deviceInfo,
       expiresAt: new Date(Date.now() + REFRESH_TOKEN_EXPIRE),
     });
 
