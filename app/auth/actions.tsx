@@ -29,6 +29,21 @@ export type ActionResult = {
   success?: string;
 } | null;
 
+function parseUserAgent(ua: string) {
+  const browserRegex = /(chrome|safari|firefox|msie|trident(?=\/))\/?\s*(\d+)/i;
+  const osRegex = /(mac|win|linux|android|ios)/i;
+
+  const browserMatch = ua.match(browserRegex);
+  const osMatch = ua.match(osRegex);
+
+  return {
+    browser: browserMatch ? browserMatch[1] : "Unknown",
+    browserVersion: browserMatch ? browserMatch[2] : "Unknown",
+    os: osMatch ? osMatch[1] : "Unknown",
+    device: /mobile|android|ios/i.test(ua) ? "mobile" : "desktop",
+  };
+}
+
 export async function loginAction(formData: FormData): Promise<ActionResult> {
   const validatedFields = loginSchema.safeParse({
     email: formData.get("email"),
@@ -48,12 +63,10 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
     const forwardedFor = headersList.get("x-forwarded-for");
     const ipAddress = forwardedFor ? forwardedFor.split(",")[0] : "127.0.0.1";
 
-    const deviceInfo = {
-      userAgent,
-      ipAddress,
-    };
+    // Parse user agent for device info
+    const deviceInfo = parseUserAgent(userAgent);
 
-    const { refreshToken, accessToken, user } = await AuthService.login(
+    const { accessToken } = await AuthService.login(
       email,
       password,
       ipAddress,
@@ -61,34 +74,22 @@ export async function loginAction(formData: FormData): Promise<ActionResult> {
       deviceInfo
     );
 
-    // Set cookies
-    const cookieOptions = {
+    // Set the access token as an HTTP-only cookie
+    const cookieStore = cookies();
+    cookieStore.set("accessToken", accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict" as const,
-      maxAge: remember ? 7 * 24 * 60 * 60 : undefined, // 7 days if remember is true
-    };
-
-    cookies().set("refreshToken", refreshToken, cookieOptions);
-    cookies().set("accessToken", accessToken, {
-      ...cookieOptions,
-      maxAge: 15 * 60, // 15 minutes
+      secure: process.env.NODE_ENV === "production", // Use secure in production
+      sameSite: "strict",
+      maxAge: remember ? 7 * 24 * 60 * 60 : 24 * 60 * 60, // 7 days if remember, else 24 hours
+      path: "/",
     });
 
-    // You might want to set user info in the session or return it to the client
-    // For example:
-    // session.set('user', { id: user.id, name: user.name, email: user.email, type: user.type });
-
-    return { success: "Logged in successfully" };
+    return {
+      success: "Welcome back!",
+    };
   } catch (error) {
     console.error("Login error:", error);
-    if (
-      error instanceof Error &&
-      error.message === "Invalid email or password"
-    ) {
-      return { error: "Invalid email or password" };
-    }
-    return { error: "An error occurred during login" };
+    return { error: "Invalid email or password" };
   }
 }
 

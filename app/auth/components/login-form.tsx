@@ -21,6 +21,8 @@ import {
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -35,6 +37,8 @@ const formSchema = z.object({
 export function LoginForm() {
   const [actionResult, setActionResult] = useState<ActionResult>(null);
   const [isPending, setIsPending] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,6 +58,12 @@ export function LoginForm() {
     const result = await loginAction(formData);
     setActionResult(result);
     setIsPending(false);
+
+    toast({
+      title: result?.success,
+    });
+
+    router.push("/home");
   }
 
   return (

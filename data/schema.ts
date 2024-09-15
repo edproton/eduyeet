@@ -7,16 +7,15 @@ import {
   boolean,
   varchar,
   jsonb,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
 export const userLogins = pgTable("user_logins", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   userId: integer("user_id")
     .notNull()
     .references(() => users.id),
-  refreshToken: text("refresh_token").notNull(),
-  accessToken: text("access_token").notNull(),
   ipAddress: varchar("ip_address", { length: 45 }).notNull(),
   userAgent: text("user_agent"),
   deviceInfo: jsonb("device_info"),
@@ -26,7 +25,7 @@ export const userLogins = pgTable("user_logins", {
   revokedAt: timestamp("revoked_at"),
   revokedReason: varchar("revoked_reason", { length: 255 }),
   revokedByIp: varchar("revoked_by_ip", { length: 45 }),
-  isValid: boolean("is_valid").default(true),
+  revokedBy: uuid("revoked_by"),
 });
 
 export const userLoginsRelations = relations(userLogins, ({ one }) => ({

@@ -10,3 +10,7 @@ export function toPascalCaseWithSpaces(str: string) {
       .join(" ")
   );
 }
+
+export function removeQuotes(str: string): string {
+  return str.replace(/^"(.*)"$/, "$1").replace(/\\"/g, '"');
+}

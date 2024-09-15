@@ -1,116 +1,86 @@
-import { eq } from "drizzle-orm";
-import { users, userRoles } from "../schema";
-import { db } from "../db";
+import { eq, and, ilike, sql } from "drizzle-orm";
+import { db } from "../db"; // Assuming you have a db connection setup
+import { users } from "../schema";
 
-interface CreateUserParams {
-  name: string;
-  email: string;
-  password: string;
-  type?: string;
-  agreeToTerms?: boolean;
-}
-
-interface UpdateUserParams {
-  name?: string;
-  email?: string;
-  password?: string;
-  type?: string;
-  agreeToTerms?: boolean;
-}
-
-export class UserRepository {
-  /**
-   * Creates a new user.
-   * @param params - The user details.
-   * @returns The created user.
-   */
-  static async createUser(params: CreateUserParams) {
-    const [user] = await db
+export const UsersRepository = {
+  // Insert a new user
+  async insert(
+    data: Omit<typeof users.$inferInsert, "id" | "createdAt" | "updatedAt">
+  ) {
+    const [insertedUser] = await db
       .insert(users)
       .values({
-        name: params.name,
-        email: params.email,
-        password: params.password, // Note: Ensure password is hashed before passing to this method
-        type: params.type || "student",
-        agreeToTerms: params.agreeToTerms || false,
+        ...data,
+        createdAt: new Date(),
+        updatedAt: new Date(),
       })
       .returning();
+    return insertedUser;
+  },
 
-    return user;
-  }
-
-  /**
-   * Updates an existing user.
-   * @param id - The ID of the user to update.
-   * @param params - The user details to update.
-   * @returns The updated user.
-   */
-  static async updateUser(id: number, params: UpdateUserParams) {
+  // Update a user
+  async update(
+    id: number,
+    data: Partial<Omit<typeof users.$inferInsert, "id" | "createdAt">>
+  ) {
     const [updatedUser] = await db
       .update(users)
       .set({
-        ...params,
+        ...data,
         updatedAt: new Date(),
       })
       .where(eq(users.id, id))
       .returning();
-
     return updatedUser;
-  }
+  },
 
-  /**
-   * Deletes a user.
-   * @param id - The ID of the user to delete.
-   * @returns The deleted user.
-   */
-  static async deleteUser(id: number) {
-    // First, delete associated user roles
-    await db.delete(userRoles).where(eq(userRoles.userId, id));
-
-    // Then, delete the user
+  // Delete a user
+  async delete(id: number) {
     const [deletedUser] = await db
       .delete(users)
       .where(eq(users.id, id))
       .returning();
-
     return deletedUser;
-  }
+  },
 
-  /**
-   * Retrieves all users.
-   * @returns An array of all users.
-   */
-  static async getAllUsers() {
+  // Get a user by ID
+  async getById(id: number) {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  },
+
+  // Get a user by email
+  async getByEmail(email: string) {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  },
+
+  // Get all users
+  async getAll() {
     return db.select().from(users);
-  }
+  },
 
-  /**
-   * Retrieves a user by ID.
-   * @param id - The ID of the user to retrieve.
-   * @returns The user with the specified ID, or null if not found.
-   */
-  static async getUserById(id: number) {
-    const [user] = await db
+  // Get users by type
+  async getByType(type: string) {
+    return db.select().from(users).where(eq(users.type, type));
+  },
+
+  // Search users by name (case-insensitive)
+  async searchByName(name: string) {
+    return db
       .select()
       .from(users)
-      .where(eq(users.id, id))
-      .limit(1);
+      .where(ilike(users.name, `%${name}%`));
+  },
 
-    return user || null;
-  }
-
-  /**
-   * Retrieves a user by email.
-   * @param email - The email of the user to retrieve.
-   * @returns The user with the specified email, or null if not found.
-   */
-  static async getUserByEmail(email: string) {
-    const [user] = await db
-      .select()
+  // Check if email exists
+  async emailExists(email: string): Promise<boolean> {
+    const [result] = await db
+      .select({ count: sql<number>`count(*)` })
       .from(users)
-      .where(eq(users.email, email))
-      .limit(1);
+      .where(eq(users.email, email));
+    return result.count > 0;
+  },
+};
 
-    return user || null;
-  }
-}
+export default UsersRepository;
