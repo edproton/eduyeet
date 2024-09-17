@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Clock, Shield, Smartphone } from "lucide-react";
 import { getUserSessions } from "../actions";
+import UserSessionsTable from "./user-logins-table";
 
 interface SessionSummaryCardProps {
   userId: number;
@@ -80,6 +81,8 @@ export default async function SessionSummaryCard({
             </dt>
             <dd className="mt-1 text-sm">{sessionData.lastUsedDevice}</dd>
           </div>
+
+          <UserSessionsTable userId={userId} />
         </dl>
       </CardContent>
     </Card>

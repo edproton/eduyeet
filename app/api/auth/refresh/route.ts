@@ -1,20 +1,20 @@
 import { AuthService } from "@/services/auth-service";
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
-function parseCookies(cookieString: string): { [key: string]: string } {
-  const cookies: { [key: string]: string } = {};
-  cookieString.split(";").forEach((cookie) => {
-    const [key, value] = cookie.split("=").map((c) => c.trim());
-    if (key && value) cookies[key] = value;
-  });
-  return cookies;
-}
-
 export async function POST(request: NextRequest) {
-  const cookies = parseCookies(request.headers.get("cookie") || "");
-  const currentAccessToken = cookies.accessToken;
+  const headersList = headers();
 
-  if (!currentAccessToken) {
+  const authorizationHeader = headersList.get("authorization");
+  if (!authorizationHeader) {
+    return NextResponse.json(
+      { error: "No authorization header provided" },
+      { status: 401 }
+    );
+  }
+
+  const accessToken = authorizationHeader.replace("Bearer ", "");
+  if (!accessToken) {
     return NextResponse.json(
       { error: "No access token provided" },
       { status: 401 }
@@ -26,15 +26,15 @@ export async function POST(request: NextRequest) {
     const forwardedFor = request.headers.get("x-forwarded-for");
     const ipAddress = forwardedFor?.split(",")[0] || request.ip || "127.0.0.1";
 
-    const { accessToken } = await AuthService.renewToken(currentAccessToken, {
-      ipAddress,
-      userAgent,
-    });
+    const { accessToken: newAccessToken } = await AuthService.renewToken(
+      accessToken,
+      {
+        ipAddress,
+        userAgent,
+      }
+    );
 
-    // Create a new response
-    const response = NextResponse.json(accessToken, { status: 200 });
-
-    return response;
+    return NextResponse.json(newAccessToken, { status: 200 });
   } catch (error) {
     console.error("Token renewal failed:", error);
     return NextResponse.json(

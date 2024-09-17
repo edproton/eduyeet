@@ -20,8 +20,6 @@ export default async function EditUserPage({
     return <div>User not found</div>;
   }
 
-  const { password, createdAt, updatedAt, ...safeUser } = user;
-
   return (
     <>
       <Link href={`/users/${user.id}`}>
@@ -32,10 +30,10 @@ export default async function EditUserPage({
 
       <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
         <div className="md:col-span-4">
-          <EditUser user={safeUser} />
+          <EditUser user={user} />
         </div>
         <div className="md:col-span-1">
-          <EditActionsCard user={safeUser} />
+          <EditActionsCard user={user} />
         </div>
       </div>
     </>

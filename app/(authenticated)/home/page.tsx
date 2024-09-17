@@ -35,12 +35,11 @@ import {
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export default async function HomePage() {
+export default function HomePage() {
   return <UsersAnalitycsPage />;
 }
 
 export function UsersAnalitycsPage() {
-  const [activeTab, setActiveTab] = useState("students");
   const [studentFilter, setStudentFilter] = useState({
     subject: "All",
     status: "All",
@@ -51,11 +50,7 @@ export function UsersAnalitycsPage() {
   });
 
   return (
-    <Tabs
-      defaultValue="students"
-      className="space-y-4"
-      onValueChange={(value) => setActiveTab(value)}
-    >
+    <Tabs defaultValue="students" className="space-y-4">
       <TabsList>
         <TabsTrigger value="students">Students</TabsTrigger>
         <TabsTrigger value="tutors">Tutors</TabsTrigger>

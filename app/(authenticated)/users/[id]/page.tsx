@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import SessionSummaryCard from "./components/session-summary-card";
 import RolesCard from "./components/roles-card";
 import Link from "next/link";
-import UserLoginsTable from "./components/user-logins-table";
 
 export default async function UserDetailsPage({
   params,
@@ -27,14 +26,12 @@ export default async function UserDetailsPage({
       </Link>
 
       <div className="flex flex-col gap-3">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <UserDetailsCard user={user} />
-          <SessionSummaryCard userId={user.id} />
           <RolesCard />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <UserLoginsTable userId={userId} />
+          <div className="col-span-2">
+            <SessionSummaryCard userId={user.id} />
+          </div>
         </div>
       </div>
     </>

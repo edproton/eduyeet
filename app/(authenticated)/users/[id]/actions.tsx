@@ -2,10 +2,10 @@
 
 import { db } from "@/data/db";
 import { userLogins, users } from "@/data/schema";
-import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
-import { decodeJwt, jwtDecrypt } from "jose";
+import { and, desc, eq, isNull, sql } from "drizzle-orm";
+import { decodeJwt } from "jose";
 import { revalidatePath } from "next/cache";
-import { cookies, headers } from "next/headers";
+import { cookies } from "next/headers";
 import { UAParser } from "ua-parser-js";
 
 export async function getUser(id: number) {
@@ -58,7 +58,7 @@ export async function revokeSession(sessionId: string, reason: string) {
       })
       .where(eq(userLogins.id, sessionId));
 
-    await revalidatePath("/app/(authenticated)/users/[id]");
+    revalidatePath("/app/(authenticated)/users/[id]");
 
     return { success: true };
   } catch (error) {
@@ -72,23 +72,11 @@ export async function getUserLogins(userId: number) {
 
   const token = decodeJwt(accessToken!);
 
-  const [activeLogins, nonActiveLogin, totalCount] = await Promise.all([
-    db
-      .select()
-      .from(userLogins)
-      .where(and(eq(userLogins.userId, userId), isNull(userLogins.revokedAt)))
-      .orderBy(desc(userLogins.lastUsed)),
-    db
-      .select({ count: sql<number>`count(*)` })
-      .from(userLogins)
-      .where(
-        and(eq(userLogins.userId, userId), isNotNull(userLogins.revokedAt))
-      ),
-    db
-      .select({ count: sql<number>`count(*)` })
-      .from(userLogins)
-      .where(eq(userLogins.userId, userId)),
-  ]);
+  const activeLogins = await db
+    .select()
+    .from(userLogins)
+    .where(and(eq(userLogins.userId, userId), isNull(userLogins.revokedAt)))
+    .orderBy(desc(userLogins.lastUsed));
 
   return {
     sessions: activeLogins.map((l) => {
@@ -100,10 +88,18 @@ export async function getUserLogins(userId: number) {
         device: `${parser.getOS().name} ${parser.getOS().version}`,
       };
     }),
-    totalSessions: {
-      active: activeLogins.length,
-      revoked: nonActiveLogin[0].count,
-      total: totalCount[0].count,
-    },
   };
+}
+
+export async function deleteUser(userId: number) {
+  try {
+    await db.delete(users).where(eq(users.id, userId));
+
+    revalidatePath("/app/(authenticated)/users");
+
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete user:", error);
+    return { success: false, error: "Failed to delete user" };
+  }
 }

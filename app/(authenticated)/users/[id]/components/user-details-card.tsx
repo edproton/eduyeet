@@ -1,13 +1,7 @@
 "use client";
 
 import React from "react";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { User } from "@/data/repositories/user.repository";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -65,8 +59,6 @@ export default function UserDetailsCard({ user }: UserDetailsProps) {
           </div>
         </dl>
       </CardContent>
-
-      <CardFooter></CardFooter>
     </Card>
   );
 }

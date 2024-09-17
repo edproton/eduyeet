@@ -4,7 +4,6 @@ import { PlusIcon } from "lucide-react";
 import SubjectsTable from "./components/subjects-table";
 import Link from "next/link";
 import { getSystems } from "./action/get-subjects";
-import { subjects } from "@/data/schema";
 import { PopularityCards } from "./components/popularity-cards";
 import { SummaryCards } from "./components/summary-cards";
 
