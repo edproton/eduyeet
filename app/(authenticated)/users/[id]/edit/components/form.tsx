@@ -1,135 +1,135 @@
-"use client";
+'use client'
 
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage
+} from '@/components/ui/form'
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { updateUser } from "../action";
-import { toast } from "@/hooks/use-toast";
-import { useRouter } from "next/navigation";
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue
+} from '@/components/ui/select'
+import { updateUser } from '../action'
+import { toast } from '@/hooks/use-toast'
+import { useRouter } from 'next/navigation'
 
 const userSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email address"),
-  type: z.enum(["student", "teacher"]),
-});
+	name: z.string().min(1, 'Name is required'),
+	email: z.string().email('Invalid email address'),
+	type: z.enum(['student', 'teacher'])
+})
 
-type UserFormData = z.infer<typeof userSchema>;
+type UserFormData = z.infer<typeof userSchema>
 
 interface EditUserProps {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    type: "student" | "teacher";
-  };
+	user: {
+		id: number
+		name: string
+		email: string
+		type: 'student' | 'teacher'
+	}
 }
 
 export default function EditUser({ user }: EditUserProps) {
-  const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+	const router = useRouter()
+	const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const form = useForm<UserFormData>({
-    resolver: zodResolver(userSchema),
-    defaultValues: {
-      name: user.name,
-      email: user.email,
-      type: user.type,
-    },
-  });
+	const form = useForm<UserFormData>({
+		resolver: zodResolver(userSchema),
+		defaultValues: {
+			name: user.name,
+			email: user.email,
+			type: user.type
+		}
+	})
 
-  async function onSubmit(data: UserFormData) {
-    setIsSubmitting(true);
-    const result = await updateUser(user.id, data);
-    setIsSubmitting(false);
+	async function onSubmit(data: UserFormData) {
+		setIsSubmitting(true)
+		const result = await updateUser(user.id, data)
+		setIsSubmitting(false)
 
-    if (result.success) {
-      toast({
-        title: "User updated",
-        description: "The user has been successfully updated.",
-      });
+		if (result.success) {
+			toast({
+				title: 'User updated',
+				description: 'The user has been successfully updated.'
+			})
 
-      router.push(`/users/${user.id}`);
-    } else {
-      toast({
-        title: "Error",
-        description: result.error || "Failed to update user. Please try again.",
-        variant: "destructive",
-      });
-    }
-  }
+			router.push(`/users/${user.id}`)
+		} else {
+			toast({
+				title: 'Error',
+				description: result.error || 'Failed to update user. Please try again.',
+				variant: 'destructive'
+			})
+		}
+	}
 
-  return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input {...field} type="email" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="type"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>User Type</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select user type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="student">Student</SelectItem>
-                  <SelectItem value="teacher">Teacher</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Updating..." : "Update User"}
-        </Button>
-      </form>
-    </Form>
-  );
+	return (
+		<Form {...form}>
+			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+				<FormField
+					control={form.control}
+					name="name"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Name</FormLabel>
+							<FormControl>
+								<Input {...field} />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="email"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>Email</FormLabel>
+							<FormControl>
+								<Input {...field} type="email" />
+							</FormControl>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<FormField
+					control={form.control}
+					name="type"
+					render={({ field }) => (
+						<FormItem>
+							<FormLabel>User Type</FormLabel>
+							<Select onValueChange={field.onChange} defaultValue={field.value}>
+								<FormControl>
+									<SelectTrigger>
+										<SelectValue placeholder="Select user type" />
+									</SelectTrigger>
+								</FormControl>
+								<SelectContent>
+									<SelectItem value="student">Student</SelectItem>
+									<SelectItem value="teacher">Teacher</SelectItem>
+								</SelectContent>
+							</Select>
+							<FormMessage />
+						</FormItem>
+					)}
+				/>
+				<Button type="submit" disabled={isSubmitting}>
+					{isSubmitting ? 'Updating...' : 'Update User'}
+				</Button>
+			</form>
+		</Form>
+	)
 }
