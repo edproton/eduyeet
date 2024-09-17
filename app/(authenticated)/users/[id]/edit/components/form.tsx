@@ -24,11 +24,12 @@ import {
 import { updateUser } from '../action'
 import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
+import { UserType } from '@/data/repositories/user.repository'
 
 const userSchema = z.object({
 	name: z.string().min(1, 'Name is required'),
 	email: z.string().email('Invalid email address'),
-	type: z.enum(['student', 'teacher'])
+	type: z.enum(['student', 'tutor'])
 })
 
 type UserFormData = z.infer<typeof userSchema>
@@ -38,7 +39,7 @@ interface EditUserProps {
 		id: number
 		name: string
 		email: string
-		type: 'student' | 'teacher'
+		type: UserType
 	}
 }
 

@@ -1,5 +1,5 @@
 import { eq, ilike, sql } from 'drizzle-orm'
-import { db } from '../db' // Assuming you have a db connection setup
+import { db } from '../db'
 import { users } from '../schema'
 
 interface GetAllUsersOptions {
@@ -71,7 +71,7 @@ export const UsersRepository = {
 	},
 
 	// Get users by type
-	async getByType(type: string) {
+	async getByType(type: UserType) {
 		return db.select().from(users).where(eq(users.type, type))
 	},
 

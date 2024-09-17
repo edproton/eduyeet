@@ -67,25 +67,17 @@ export default function AddSystemPage() {
 	})
 
 	const onSubmit = async (data: FormValues) => {
-		try {
-			const result = await addSystem(data)
-			if (result.success) {
-				toast({
-					title: 'Success',
-					description: result.message
-				})
-				router.push('/subjects')
-			} else {
-				toast({
-					title: 'Error',
-					description: 'Failed to add system. Please check your inputs.',
-					variant: 'destructive'
-				})
-			}
-		} catch (error) {
+		const result = await addSystem(data)
+		if (result.success) {
+			toast({
+				title: 'Success',
+				description: result.message
+			})
+			router.push('/subjects')
+		} else {
 			toast({
 				title: 'Error',
-				description: 'An unexpected error occurred. Please try again.',
+				description: 'Failed to add system. Please check your inputs.',
 				variant: 'destructive'
 			})
 		}
