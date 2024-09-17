@@ -4,7 +4,6 @@ import {
   text,
   integer,
   timestamp,
-  boolean,
   varchar,
   uuid,
   pgEnum,
@@ -42,7 +41,7 @@ export const roles = pgTable("roles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-const UserTypeEnum = pgEnum("user_type", ["student", "teacher"]);
+const UserTypeEnum = pgEnum("user_type", ["student", "tutor"]);
 
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),

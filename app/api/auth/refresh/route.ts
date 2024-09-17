@@ -26,13 +26,11 @@ export async function POST(request: NextRequest) {
     const forwardedFor = request.headers.get("x-forwarded-for");
     const ipAddress = forwardedFor?.split(",")[0] || request.ip || "127.0.0.1";
 
-    const { accessToken: newAccessToken } = await AuthService.renewToken(
-      accessToken,
-      {
-        ipAddress,
-        userAgent,
-      }
-    );
+    const { accessToken: newAccessToken } = await AuthService.renewToken({
+      jwtToken: accessToken,
+      userAgent,
+      ipAddress,
+    });
 
     return NextResponse.json(newAccessToken, { status: 200 });
   } catch (error) {

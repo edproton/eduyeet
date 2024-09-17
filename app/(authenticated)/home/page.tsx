@@ -39,7 +39,7 @@ export default function HomePage() {
   return <UsersAnalitycsPage />;
 }
 
-export function UsersAnalitycsPage() {
+function UsersAnalitycsPage() {
   const [studentFilter, setStudentFilter] = useState({
     subject: "All",
     status: "All",

@@ -8,6 +8,7 @@ interface GetAllUsersOptions {
 }
 
 export type User = typeof users.$inferSelect;
+export type UserType = "student" | "tutor";
 
 export const UsersRepository = {
   // Insert a new user
