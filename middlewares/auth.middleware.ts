@@ -86,7 +86,11 @@ export class AuthMiddleware {
   private async refreshToken(): Promise<NextResponse> {
     const refreshResponse = await fetch(this.refreshUrl, {
       method: "POST",
-      headers: { Cookie: `accessToken=${this.accessToken}` },
+      headers: {
+        Cookie: `accessToken=${this.accessToken}`,
+        "User-Agent":
+          this.request.headers.get("User-Agent") || "Auth Middleware",
+      },
     });
 
     if (refreshResponse.ok) {

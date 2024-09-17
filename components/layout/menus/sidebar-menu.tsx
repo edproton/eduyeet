@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 export default function SidebarMenu() {
   const pathname = usePathname();
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => pathname.includes(href);
 
   return (
     <TooltipProvider>

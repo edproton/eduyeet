@@ -32,7 +32,7 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      <div className="lg:flex-1 lg:relative bg-gradient-to-br from-primary to-secondary">
+      <div className="lg:w-1/2 bg-gradient-to-br from-primary to-secondary relative">
         <Image
           src="/learning.png"
           alt="EduYeet Platform"
@@ -40,17 +40,21 @@ export default function AuthPage() {
           height={1080}
           className="object-cover w-full h-64 lg:h-full opacity-50"
         />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
-          <h1 className="text-6xl font-bold mb-4 animate-bounce">EduYeet</h1>
-          <p className="text-xl">Launch Your Learning Journey!</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-white p-4">
+          <h1 className="text-4xl lg:text-6xl font-bold mb-4 animate-bounce text-center">
+            EduYeet
+          </h1>
+          <p className="text-lg lg:text-xl text-center">
+            Launch Your Learning Journey!
+          </p>
         </div>
       </div>
-      <div className="lg:flex-1 w-full max-w-md mx-auto p-6 flex flex-col justify-center">
+      <div className="lg:w-1/2 w-full p-4 lg:p-6 flex items-center justify-center">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="w-full"
+          className="w-full max-w-md"
         >
           <Card className="w-full">
             <CardHeader className="relative">
@@ -70,14 +74,14 @@ export default function AuthPage() {
                   )}
                 </Button>
               </div>
-              <CardTitle className="animate-pulse text-3xl text-center font-extrabold flex items-center justify-center mt-6">
+              <CardTitle className="animate-pulse text-2xl lg:text-3xl text-center font-extrabold flex items-center justify-center mt-6">
                 Join Us <Rocket className="inline-block ml-2" />
               </CardTitle>
               <CardDescription className="text-center">
                 Sign up or log in to start yeeting knowledge!
               </CardDescription>
             </CardHeader>
-            <CardContent className="p-6">
+            <CardContent className="p-4 lg:p-6">
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 mb-4">
                   <TabsTrigger
@@ -103,7 +107,7 @@ export default function AuthPage() {
                 </div>
               </Tabs>
             </CardContent>
-            <CardFooter className="text-center text-sm text-muted-foreground">
+            <CardFooter className="text-center text-xs lg:text-sm text-muted-foreground p-4">
               By using EduYeet, you agree to our Terms of Service and Privacy
               Policy.
             </CardFooter>

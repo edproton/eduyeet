@@ -6,8 +6,8 @@ import {
   timestamp,
   boolean,
   varchar,
-  jsonb,
   uuid,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -17,9 +17,8 @@ export const userLogins = pgTable("user_logins", {
     .notNull()
     .references(() => users.id),
   ipAddress: varchar("ip_address", { length: 45 }).notNull(),
-  userAgent: text("user_agent"),
-  deviceInfo: jsonb("device_info"),
-  lastUsed: timestamp("last_used").defaultNow(),
+  userAgent: text("user_agent").notNull(),
+  lastUsed: timestamp("last_used").defaultNow().notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   issuedAt: timestamp("issued_at").defaultNow(),
   revokedAt: timestamp("revoked_at"),
@@ -43,13 +42,14 @@ export const roles = pgTable("roles", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+const UserTypeEnum = pgEnum("user_type", ["student", "teacher"]);
+
 export const users = pgTable("users", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull().unique(),
   password: varchar("password", { length: 255 }).notNull(),
-  type: varchar("type", { length: 10 }).notNull().default("student"),
-  agreeToTerms: boolean("agree_to_terms").notNull().default(false),
+  type: UserTypeEnum("type").notNull().default("student"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

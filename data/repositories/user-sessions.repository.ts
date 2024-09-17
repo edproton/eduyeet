@@ -2,6 +2,8 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { userLogins } from "../schema";
 
+export type UserLogin = typeof userLogins.$inferSelect;
+
 export class UserLoginsRepository {
   static async insert(
     data: Omit<typeof userLogins.$inferInsert, "id" | "issuedAt" | "lastUsed">
