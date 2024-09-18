@@ -1,13 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Users, Activity } from 'lucide-react'
+import { getSummaryData } from '../action'
 
 // Mock data for demonstration
-const dashboardData = {
-	totalUsers: 1234,
-	activeSessions: 56
-}
+export default async function SummaryCards() {
+	const dashboardData = await getSummaryData()
 
-export default function SummaryCards() {
 	return (
 		<>
 			<Card>

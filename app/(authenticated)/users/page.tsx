@@ -2,7 +2,9 @@ import { getUsers } from './action'
 import SummaryCards from './components/summary-cards'
 import UserTable from './components/user-table'
 
-export default function UsersPage() {
+export default async function UsersPage() {
+	const initialData = await getUsers(1, 10)
+
 	return (
 		<div>
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -10,17 +12,9 @@ export default function UsersPage() {
 			</div>
 
 			<div className="shadow rounded-lg">
-				<div className="p-6">
-					<h2 className="text-xl font-semibold mb-4">User List</h2>
-					<UserTableWrapper />
-				</div>
+				<h2 className="text-xl font-semibold mb-4">User List</h2>
+				<UserTable initialData={initialData} />
 			</div>
 		</div>
 	)
-}
-
-async function UserTableWrapper() {
-	const initialData = await getUsers(1, 10)
-
-	return <UserTable initialData={initialData} />
 }
