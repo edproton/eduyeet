@@ -120,7 +120,7 @@ export default function EditUser({ user }: EditUserProps) {
 								</FormControl>
 								<SelectContent>
 									<SelectItem value="student">Student</SelectItem>
-									<SelectItem value="teacher">Teacher</SelectItem>
+									<SelectItem value="tutor">Tutor</SelectItem>
 								</SelectContent>
 							</Select>
 							<FormMessage />

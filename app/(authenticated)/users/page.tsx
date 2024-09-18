@@ -1,19 +1,20 @@
-import { getUsers } from './action'
+import { Suspense } from 'react'
 import SummaryCards from './components/summary-cards'
-import UserTable from './components/user-table'
+import UsersTable from './components/user-table'
+import { getUsers } from './action'
 
 export default async function UsersPage() {
-	const initialData = await getUsers(1, 10)
-
+	const { users } = await getUsers()
 	return (
 		<div>
 			<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-8">
-				<SummaryCards />
+				<Suspense fallback={<div>Loading summary...</div>}>
+					<SummaryCards />
+				</Suspense>
 			</div>
 
 			<div className="shadow rounded-lg">
-				<h2 className="text-xl font-semibold mb-4">User List</h2>
-				<UserTable initialData={initialData} />
+				<UsersTable data={users} />
 			</div>
 		</div>
 	)

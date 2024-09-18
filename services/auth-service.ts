@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { logger } from '@/lib/logger'
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || '')
-const JWT_EXPIRE = '2m' // 1 hour
+const JWT_EXPIRE = '60m' // 1 hour
 const REFRESH_TOKEN_EXPIRE = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
 
 interface AuthRequest {
