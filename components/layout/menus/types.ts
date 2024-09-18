@@ -14,4 +14,4 @@ export const menuItems: MenuItem[] = [
 	{ name: 'Analytics', icon: LineChart, href: '#' }
 ]
 
-export const footerItems: MenuItem[] = [{ name: 'Settings', icon: Settings, href: '#' }]
+export const footerItems: MenuItem[] = [{ name: 'Settings', icon: Settings, href: '/settings' }]

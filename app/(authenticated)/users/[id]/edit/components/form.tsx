@@ -25,6 +25,7 @@ import { updateUser } from '../action'
 import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
 import { UserType } from '@/data/repositories/user.repository'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 
 const userSchema = z.object({
 	name: z.string().min(1, 'Name is required'),
@@ -78,59 +79,64 @@ export default function EditUser({ user }: EditUserProps) {
 	}
 
 	return (
-		<Form {...form}>
-			<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-				<FormField
-					control={form.control}
-					name="name"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Name</FormLabel>
-							<FormControl>
-								<Input {...field} />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={form.control}
-					name="email"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>Email</FormLabel>
-							<FormControl>
-								<Input {...field} type="email" />
-							</FormControl>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<FormField
-					control={form.control}
-					name="type"
-					render={({ field }) => (
-						<FormItem>
-							<FormLabel>User Type</FormLabel>
-							<Select onValueChange={field.onChange} defaultValue={field.value}>
-								<FormControl>
-									<SelectTrigger>
-										<SelectValue placeholder="Select user type" />
-									</SelectTrigger>
-								</FormControl>
-								<SelectContent>
-									<SelectItem value="student">Student</SelectItem>
-									<SelectItem value="tutor">Tutor</SelectItem>
-								</SelectContent>
-							</Select>
-							<FormMessage />
-						</FormItem>
-					)}
-				/>
-				<Button type="submit" disabled={isSubmitting}>
-					{isSubmitting ? 'Updating...' : 'Update User'}
-				</Button>
-			</form>
-		</Form>
+		<Card>
+			<CardHeader>Edit User</CardHeader>
+			<CardContent>
+				<Form {...form}>
+					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+						<FormField
+							control={form.control}
+							name="name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="email"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Email</FormLabel>
+									<FormControl>
+										<Input {...field} type="email" />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="type"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>User Type</FormLabel>
+									<Select onValueChange={field.onChange} defaultValue={field.value}>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue placeholder="Select user type" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											<SelectItem value="student">Student</SelectItem>
+											<SelectItem value="tutor">Tutor</SelectItem>
+										</SelectContent>
+									</Select>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<Button type="submit" disabled={isSubmitting}>
+							{isSubmitting ? 'Updating...' : 'Update User'}
+						</Button>
+					</form>
+				</Form>
+			</CardContent>
+		</Card>
 	)
 }

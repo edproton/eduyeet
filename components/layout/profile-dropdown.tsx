@@ -14,6 +14,7 @@ import {
 import Image from 'next/image'
 import { logout } from './actions'
 import { useToast } from '@/hooks/use-toast'
+import Link from 'next/link'
 
 export default function ProfileDropdown() {
 	const [isLoggingOut, setIsLoggingOut] = useState(false)
@@ -61,7 +62,9 @@ export default function ProfileDropdown() {
 			<DropdownMenuContent align="end">
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>
 				<DropdownMenuSeparator />
-				<DropdownMenuItem>Settings</DropdownMenuItem>
+				<DropdownMenuItem>
+					<Link href="/settings">Settings</Link>
+				</DropdownMenuItem>
 				<DropdownMenuItem>Support</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem onSelect={handleLogout} disabled={isLoggingOut}>
