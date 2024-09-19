@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 const envSchema = z.object({
+	APP_URL: z.string(),
 	DB_HOST: z.string(),
 	DB_PORT: z.string().transform(Number),
 	DB_USERNAME: z.string(),

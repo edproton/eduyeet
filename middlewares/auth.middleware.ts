@@ -8,6 +8,7 @@ export class AuthMiddleware {
 	private refreshUrl: URL
 	private validateUrl: URL
 	private isAuthPage: boolean
+	private isVerifyPage: boolean
 	private accessToken: string | undefined
 
 	constructor(request: NextRequest) {
@@ -17,6 +18,7 @@ export class AuthMiddleware {
 		this.refreshUrl = new URL('/api/auth/refresh', request.url)
 		this.validateUrl = new URL('/api/auth/validate', request.url)
 		this.isAuthPage = request.nextUrl.pathname === '/auth'
+		this.isVerifyPage = request.nextUrl.pathname.includes('/auth/verify')
 		this.accessToken = request.cookies.get('accessToken')?.value
 	}
 
@@ -39,6 +41,10 @@ export class AuthMiddleware {
 	}
 
 	private handleNoToken(): NextResponse {
+		if (this.isVerifyPage) {
+			return NextResponse.next()
+		}
+
 		if (!this.isAuthPage) {
 			this.loginUrl.searchParams.set('redirect', this.request.url)
 			return NextResponse.redirect(this.loginUrl)
@@ -90,6 +96,10 @@ export class AuthMiddleware {
 	}
 
 	private handleInvalidToken(): NextResponse {
+		if (this.isVerifyPage) {
+			return NextResponse.next()
+		}
+
 		if (!this.isAuthPage) {
 			this.loginUrl.searchParams.set('redirect', this.request.url)
 			return NextResponse.redirect(this.loginUrl)

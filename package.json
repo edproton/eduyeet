@@ -10,7 +10,7 @@
 		"format": "prettier --write .",
 		"typecheck": "tsc --noEmit",
 		"generate": "drizzle-kit generate:pg",
-		"push": "drizzle-kit push:pg",
+		"push": "drizzle-kit push",
 		"drop": "drizzle-kit drop",
 		"check": "drizzle-kit check:pg",
 		"up": "drizzle-kit up:pg",

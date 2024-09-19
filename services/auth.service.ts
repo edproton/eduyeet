@@ -20,28 +20,6 @@ export class AuthError extends Error {
 }
 
 export class AuthService {
-	static async register(
-		name: string,
-		email: string,
-		password: string,
-		type: UserType
-	): Promise<void> {
-		const emailExists = await UsersRepository.getByEmail(email)
-		if (emailExists) {
-			throw new AuthError('Email already in use', { email })
-		}
-
-		const hashedPassword = await bcrypt.hash(password, 10)
-		await UsersRepository.insert({
-			name,
-			email,
-			type: type,
-			password: hashedPassword
-		})
-
-		logger.info('User registered successfully', { email, type })
-	}
-
 	static async login(
 		email: string,
 		password: string,
@@ -141,6 +119,7 @@ export class AuthService {
 		}
 
 		logger.info('User verified successfully', { userId: id })
+
 		return updatedUser
 	}
 

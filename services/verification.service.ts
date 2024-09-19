@@ -16,7 +16,7 @@ export const VerificationService = {
 
 		const verification = await VerificationRepository.createVerification(userId)
 
-		const verificationLink = `${process.env.APP_URL}/verify?id=${userId}&code=${verification.verificationCode}`
+		const verificationLink = `${process.env.APP_URL}/auth/verify?id=${userId}&code=${verification.verificationCode}`
 
 		await emailService.sendEmail({
 			to: user.email,

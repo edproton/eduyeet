@@ -75,10 +75,8 @@ export async function registerAction(formData: FormData): Promise<ActionResult> 
 		return { error: 'Invalid fields' }
 	}
 
-	const { name, email, password, type } = validatedFields.data
-
 	try {
-		await AuthService.register(name, email, password, type)
+		await AuthService.registerUser(validatedFields.data)
 		return { success: 'Registered successfully' }
 	} catch (error) {
 		return handleActionError(error, 'An error occurred during registration')
