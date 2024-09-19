@@ -2,7 +2,7 @@
 
 import { db } from '@/data/db'
 import UsersRepository from '@/data/repositories/user.repository'
-import { userLogins, users } from '@/data/schema'
+import { userLogins, users } from '@/data/schemas'
 import { count, eq, isNull } from 'drizzle-orm'
 
 export async function getUsers() {

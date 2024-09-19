@@ -1,12 +1,13 @@
-import { JWTPayload, SignJWT, jwtVerify } from 'jose'
+import { JWTPayload, SignJWT, decodeJwt, jwtVerify } from 'jose'
 import UserLoginsRepository, { UserLogin } from '@/data/repositories/user-sessions.repository'
 import UsersRepository, { UserType } from '@/data/repositories/user.repository'
 import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { logger } from '@/lib/logger'
+import { JWTExpired } from 'jose/errors'
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || '')
-const JWT_EXPIRE = '60m' // 1 hour
+const JWT_EXPIRE = '5m' // 1 hour
 const REFRESH_TOKEN_EXPIRE = 7 * 24 * 60 * 60 * 1000 // 7 days in milliseconds
 
 interface AuthRequest {
@@ -126,7 +127,7 @@ export class AuthService {
 			const payload = await this.validateToken(request.jwtToken)
 			const oldUserSession = await this.getValidatedUserLogin(payload.jti as string)
 			if (!oldUserSession) {
-				this.logAndThrow('Invalid token: corrupted jti')
+				this.logAndThrow('Token revoked')
 			}
 
 			const newRefreshToken = uuidv4()
@@ -200,6 +201,16 @@ export class AuthService {
 
 			return payload
 		} catch (error) {
+			if (error instanceof JWTExpired) {
+				const payload = decodeJwt(jwtToken)
+
+				if (!payload.jti) {
+					this.logAndThrow('Invalid token: missing jti')
+				}
+
+				return payload
+			}
+
 			this.handleError(error, 'Failed to validate token')
 		}
 	}

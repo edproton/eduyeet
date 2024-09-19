@@ -1,11 +1,11 @@
 import { db } from '@/data/db'
-import { users } from '@/data/schema'
 import { eq } from 'drizzle-orm'
 import EditUser from './components/form'
 import { ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import EditActionsCard from './components/edit-actions-card'
+import { users } from '@/data/schemas'
 
 export default async function EditUserPage({ params }: { params: { id: string } }) {
 	const user = await db.query.users.findFirst({

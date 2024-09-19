@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
-import { db } from '../db'
-import { userLogins } from '../schema'
+import { db } from '@/data/db'
+import { userLogins } from '@/data/schemas'
 
 export type UserLogin = typeof userLogins.$inferSelect
 

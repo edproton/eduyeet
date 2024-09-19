@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/data/db'
-import { userLogins, users } from '@/data/schema'
+import { userLogins, users } from '@/data/schemas'
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { decodeJwt } from 'jose'
 import { revalidatePath } from 'next/cache'
@@ -88,18 +88,5 @@ export async function getUserLogins(userId: number) {
 				device: `${parser.getOS().name} ${parser.getOS().version}`
 			}
 		})
-	}
-}
-
-export async function deleteUser(userId: number) {
-	try {
-		await db.delete(users).where(eq(users.id, userId))
-
-		revalidatePath('/app/(authenticated)/users')
-
-		return { success: true }
-	} catch (error) {
-		console.error('Failed to delete user:', error)
-		return { success: false, error: 'Failed to delete user' }
 	}
 }

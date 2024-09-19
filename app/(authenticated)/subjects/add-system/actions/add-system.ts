@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/data/db'
-import { qualifications, subjects, systems } from '@/data/schema'
+import { qualifications, subjects, systems } from '@/data/schemas'
 import { z } from 'zod'
 
 const QualificationSchema = z.object({

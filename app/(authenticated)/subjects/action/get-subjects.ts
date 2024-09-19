@@ -3,7 +3,7 @@
 import { cache } from 'react'
 import { eq } from 'drizzle-orm'
 import { db } from '@/data/db'
-import { subjects, systems, qualifications } from '@/data/schema'
+import { subjects, systems, qualifications } from '@/data/schemas'
 
 export interface Qualification {
 	name: string

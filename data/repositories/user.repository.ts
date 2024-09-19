@@ -1,6 +1,6 @@
 import { eq, ilike, sql } from 'drizzle-orm'
-import { db } from '../db'
-import { users } from '../schema'
+import { db } from '@/data/db'
+import { users } from '@/data/schemas'
 
 interface GetAllUsersOptions {
 	skip?: number
