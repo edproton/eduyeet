@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { User } from '@/data/repositories/user.repository'
+import { User } from '@/repositories'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Edit } from 'lucide-react'

@@ -24,7 +24,7 @@ import {
 import { updateUser } from '../action'
 import { toast } from '@/hooks/use-toast'
 import { useRouter } from 'next/navigation'
-import { UserType } from '@/data/repositories/user.repository'
+import { UserType } from '@/repositories'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 
 const userSchema = z.object({

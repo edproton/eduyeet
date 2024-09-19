@@ -1,10 +1,15 @@
 import { JWTPayload, SignJWT, decodeJwt, jwtVerify } from 'jose'
-import UserLoginsRepository, { UserLogin } from '@/data/repositories/user-sessions.repository'
-import UsersRepository, { UserType } from '@/data/repositories/user.repository'
 import bcrypt from 'bcryptjs'
 import { v4 as uuidv4 } from 'uuid'
 import { logger } from '@/lib/logger'
 import { JWTExpired } from 'jose/errors'
+import {
+	UserLogin,
+	UserLoginsRepository,
+	UserLoginUpdate,
+	UsersRepository,
+	UserType
+} from '@/repositories'
 
 const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || '')
 const JWT_EXPIRE = '5m' // 1 hour
@@ -42,10 +47,11 @@ export class AuthService {
 		}
 	}
 
-	private static async updateUserLogin(id: string, updateData: Partial<UserLogin>): Promise<void> {
+	static async updateUserLogin(data: UserLoginUpdate): Promise<void> {
 		try {
-			await UserLoginsRepository.update(id, updateData)
-			logger.info('User login updated', { id, ...updateData })
+			await UserLoginsRepository.update(data)
+
+			logger.info('User login updated', { ...data })
 		} catch (error) {
 			this.handleError(error, 'Failed to update user login')
 		}
@@ -131,7 +137,8 @@ export class AuthService {
 			}
 
 			const newRefreshToken = uuidv4()
-			await this.updateUserLogin(oldUserSession.id, {
+			await this.updateUserLogin({
+				id: oldUserSession.id,
 				revokedAt: new Date(),
 				revokedBy: newRefreshToken,
 				revokedByIp: request.ipAddress,
@@ -147,8 +154,8 @@ export class AuthService {
 
 			const newAccessToken = await new SignJWT({
 				userId: oldUserSession.userId,
-				email: payload.email as string,
-				type: payload.type as UserType
+				email: payload.email,
+				type: payload.type
 			})
 				.setProtectedHeader({ alg: 'HS256' })
 				.setJti(newLoginEntry.id.toString())
@@ -228,7 +235,9 @@ export class AuthService {
 				this.logAndThrow('Invalid token: user session not found')
 			}
 
-			await this.updateUserLogin(userSession.id, {
+			await this.updateUserLogin({
+				id: userSession.id,
+				revokedBy: null,
 				revokedAt: new Date(),
 				revokedByIp: request.ipAddress,
 				revokedReason: 'User logged out'

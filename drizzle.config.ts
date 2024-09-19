@@ -5,7 +5,7 @@ console.log(process.env)
 export default defineConfig({
 	dialect: 'postgresql',
 	out: './drizzle',
-	schema: './data/schema.ts',
+	schema: './data/schemas',
 	dbCredentials: {
 		host: process.env.DB_HOST!,
 		port: Number(process.env.DB_PORT!),

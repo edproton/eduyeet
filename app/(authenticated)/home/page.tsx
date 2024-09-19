@@ -22,10 +22,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function HomePage() {
-	return <UsersAnalitycsPage />
+	return <UsersAnalyticsPage />
 }
 
-function UsersAnalitycsPage() {
+function UsersAnalyticsPage() {
 	const [studentFilter, setStudentFilter] = useState({
 		subject: 'All',
 		status: 'All'

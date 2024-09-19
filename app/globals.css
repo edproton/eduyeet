@@ -72,7 +72,6 @@
 	}
 }
 
-/* Use these variables in your dark mode styles */
 @media (prefers-color-scheme: dark) {
 	:root {
 		--success: 142 70% 45%;

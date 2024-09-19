@@ -48,7 +48,7 @@ import {
 	Settings,
 	Users
 } from 'lucide-react'
-import { User } from '@/data/repositories/user.repository'
+import { User } from '@/repositories'
 
 const columns: ColumnDef<User>[] = [
 	{
