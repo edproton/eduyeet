@@ -1,6 +1,6 @@
 'use server'
 
-import { AuthService } from '@/services/auth-service'
+import { AuthService } from '@/services/auth.service'
 import { cookies, headers } from 'next/headers'
 
 export async function logout() {

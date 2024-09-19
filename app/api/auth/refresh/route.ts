@@ -1,4 +1,4 @@
-import { AuthService } from '@/services/auth-service'
+import { AuthService } from '@/services/auth.service'
 import { headers } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 

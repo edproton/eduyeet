@@ -2,6 +2,7 @@ import { pgTable, serial, varchar, timestamp, pgEnum, boolean } from 'drizzle-or
 import { relations } from 'drizzle-orm'
 import { userRoles } from './userRoles'
 import { userLogins } from './userLogins'
+import { verifications } from './verifications'
 
 export const userTypeEnum = pgEnum('user_type', ['tutor', 'student'])
 
@@ -16,7 +17,11 @@ export const users = pgTable('users', {
 	updatedAt: timestamp('updated_at').defaultNow()
 })
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
 	userRoles: many(userRoles),
-	userLogins: many(userLogins)
+	userLogins: many(userLogins),
+	verification: one(verifications, {
+		fields: [users.id],
+		references: [verifications.userId]
+	})
 }))
