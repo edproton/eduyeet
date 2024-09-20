@@ -1,6 +1,6 @@
 'use server'
 
-import { AuthService } from '@/services'
+import { VerificationService } from '@/services'
 import { z } from 'zod'
 
 const verificationSchema = z.object({
@@ -16,7 +16,7 @@ export async function verifyEmail(userId: number, code: string) {
 	}
 
 	try {
-		await AuthService.verifyUser(userId, code)
+		await VerificationService.verifyUser(userId, code)
 
 		return { success: true, message: 'Email verified successfully' }
 	} catch (error) {

@@ -1,4 +1,4 @@
-import { AuthService } from '@/services/auth.service'
+import { JWTService, UserSessionService } from '@/services'
 import { headers } from 'next/headers'
 import { NextResponse } from 'next/server'
 
@@ -16,8 +16,9 @@ export async function GET() {
 	}
 
 	try {
-		const payload = await AuthService.validateToken(accessToken)
-		const isRefreshTokenValid = await AuthService.getValidatedUserLogin(payload.jti!)
+		// TODO: JWTService.verify is not validating the expiration time
+		const payload = await JWTService.verify(accessToken)
+		const isRefreshTokenValid = await UserSessionService.getValidSession(payload.jti!)
 
 		if (!isRefreshTokenValid) {
 			return NextResponse.json({ valid: false, reason: 'Token revoked' }, { status: 200 })

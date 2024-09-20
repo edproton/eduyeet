@@ -18,7 +18,7 @@ export class AuthMiddleware {
 		this.refreshUrl = new URL('/api/auth/refresh', request.url)
 		this.validateUrl = new URL('/api/auth/validate', request.url)
 		this.isAuthPage = request.nextUrl.pathname === '/auth'
-		this.isVerifyPage = request.nextUrl.pathname.includes('/auth/verify')
+		this.isVerifyPage = request.nextUrl.pathname === '/auth/verify'
 		this.accessToken = request.cookies.get('accessToken')?.value
 	}
 
@@ -46,8 +46,7 @@ export class AuthMiddleware {
 		}
 
 		if (!this.isAuthPage) {
-			this.loginUrl.searchParams.set('redirect', this.request.url)
-			return NextResponse.redirect(this.loginUrl)
+			return this.redirectToLogin(this.request.url)
 		}
 
 		return NextResponse.next()
@@ -62,7 +61,7 @@ export class AuthMiddleware {
 			method: 'POST',
 			headers: {
 				Authorization: `Bearer ${this.accessToken}`,
-				'User-Agent': this.request.headers.get('User-Agent') || null!
+				'User-Agent': this.request.headers.get('User-Agent') || ''
 			}
 		})
 
@@ -101,10 +100,29 @@ export class AuthMiddleware {
 		}
 
 		if (!this.isAuthPage) {
-			this.loginUrl.searchParams.set('redirect', this.request.url)
-			return NextResponse.redirect(this.loginUrl)
+			return this.redirectToLogin(this.request.url)
 		}
 
 		return NextResponse.next()
+	}
+
+	private redirectToLogin(returnUrl: string): NextResponse {
+		const safeReturnUrl = this.getSafeRedirectUrl(returnUrl)
+		this.loginUrl.searchParams.set('redirect', safeReturnUrl)
+		return NextResponse.redirect(this.loginUrl)
+	}
+
+	private getSafeRedirectUrl(url: string): string {
+		try {
+			const parsedUrl = new URL(url)
+			const isSameOrigin = parsedUrl.origin === this.request.nextUrl.origin
+			if (isSameOrigin) {
+				return parsedUrl.pathname + parsedUrl.search
+			}
+		} catch (error) {
+			console.error('Failed to parse URL:', error)
+		}
+
+		return this.homeUrl.pathname
 	}
 }

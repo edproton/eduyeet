@@ -31,6 +31,11 @@ export class AuthService {
 			throw new AuthError('Invalid email or password')
 		}
 
+		if (!user.isVerified) {
+			await VerificationService.resendVerification(user.id)
+			throw new AuthError('User not verified, please check your email.')
+		}
+
 		const loginEntry = await UserSessionService.createSession(user.id, ipAddress, userAgent)
 
 		const accessToken = await JWTService.sign({
@@ -105,24 +110,6 @@ export class AuthService {
 		})
 	}
 
-	static async verifyUser(id: number, verifyCode: string): Promise<User> {
-		logger.info('Attempting to verify user', { userId: id })
-
-		const verified = await VerificationService.verifyUser(id, verifyCode)
-		if (!verified) {
-			throw new AuthError('Failed to verify user', { userId: id })
-		}
-
-		const updatedUser = await UsersRepository.getById(id)
-		if (!updatedUser) {
-			throw new AuthError('User not found after verification', { userId: id })
-		}
-
-		logger.info('User verified successfully', { userId: id })
-
-		return updatedUser
-	}
-
 	static async registerUser(user: UserInsert): Promise<User> {
 		logger.info('Attempting to register new user', { email: user.email })
 
@@ -131,18 +118,11 @@ export class AuthService {
 			throw new AuthError('Email already registered', { email: user.email })
 		}
 
+		user.password = await bcrypt.hash(user.password, 10)
 		const newUser = await UsersRepository.insert(user)
 		await VerificationService.createVerification(newUser.id)
 
 		logger.info('User registered successfully', { userId: newUser.id, email: newUser.email })
 		return newUser
-	}
-
-	static async resendVerificationEmail(userId: number): Promise<void> {
-		logger.info('Attempting to resend verification email', { userId })
-
-		await VerificationService.resendVerification(userId)
-
-		logger.info('Verification email resent successfully', { userId })
 	}
 }
