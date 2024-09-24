@@ -2,7 +2,7 @@ import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import MobileMenu from './mobile-menu'
 import BreadcrumbItems from '../breadcrumb-items'
-import ProfileDropdown from '../profile-dropdown'
+// import ProfileDropdown from '../profile-dropdown'
 
 export default function NavigationMenu() {
 	return (
@@ -17,7 +17,7 @@ export default function NavigationMenu() {
 					className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
 				/>
 			</div>
-			<ProfileDropdown />
+			{/* <ProfileDropdown /> */}
 		</>
 	)
 }

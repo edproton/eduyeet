@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import localFont from 'next/font/local'
 import './globals.css'
-import { ThemeProvider } from '../providers/theme-provider'
+import { QueryProvider, ThemeProvider } from '../providers/theme-provider'
 import { cn } from '@/lib/utils'
 import { Toaster } from '@/components/ui/toaster'
 
@@ -37,8 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					enableSystem
 					disableTransitionOnChange
 				>
-					{children}
-
+					<QueryProvider>{children}</QueryProvider>
 					<Toaster />
 				</ThemeProvider>
 			</body>

@@ -1,4 +1,5 @@
-import axios, { AxiosError } from 'axios'
+// api.ts
+import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
 
 export interface LearningSystem {
 	id: string
@@ -15,6 +16,22 @@ export interface Subject {
 export interface Qualification {
 	id: string
 	name: string
+}
+
+export interface RegisterData {
+	name: string
+	email: string
+	password: string
+	type: number
+}
+
+interface LoginData {
+	email: string
+	password: string
+}
+
+interface LoginResponse {
+	token: string
 }
 
 interface ApiError {
@@ -43,7 +60,6 @@ const handleApiError = (error: unknown) => {
 					const apiError = axiosError.response.data.errors[0]
 					throw new ApiException(apiError.code, apiError.description)
 				}
-
 				throw new ApiException('Frontend error', 'An unknown error occurred')
 			}
 		}
@@ -53,9 +69,51 @@ const handleApiError = (error: unknown) => {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL
 
+const authAxios = axios.create()
+authAxios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+	const token = api.getAuthToken()
+
+	if (token) {
+		config.headers['Authorization'] = `Bearer ${token}`
+	}
+
+	return config
+})
+
 export const api = {
-	getLearningSystems: async (): Promise<LearningSystem[]> =>
+	register: async (data: RegisterData): Promise<void> =>
 		axios
+			.post(`${API_URL}/Auth/register`, data)
+			.then(() => {})
+			.catch(handleApiError),
+
+	login: async (data: LoginData): Promise<LoginResponse> =>
+		axios
+			.post(`${API_URL}/Auth/login`, data)
+			.then((res) => res.data)
+			.catch(handleApiError),
+
+	setAuthToken: (token: string) => {
+		if (typeof window !== 'undefined') {
+			window.sessionStorage.setItem('accessToken', token)
+		}
+	},
+
+	getAuthToken: (): string | null => {
+		if (typeof window !== 'undefined') {
+			return window.sessionStorage.getItem('accessToken')
+		}
+		return null
+	},
+
+	clearAuthToken: () => {
+		if (typeof window !== 'undefined') {
+			window.sessionStorage.removeItem('accessToken')
+		}
+	},
+
+	getLearningSystems: async (): Promise<LearningSystem[]> =>
+		authAxios
 			.get(`${API_URL}/learning-systems`, {
 				params: { skip: 0, take: 100 }
 			})
@@ -63,25 +121,25 @@ export const api = {
 			.catch(handleApiError),
 
 	createLearningSystem: async (name: string): Promise<LearningSystem> =>
-		axios
+		authAxios
 			.post(`${API_URL}/learning-systems`, { name })
 			.then((res) => res.data)
 			.catch(handleApiError),
 
 	updateLearningSystem: async (id: string, name: string): Promise<LearningSystem> =>
-		axios
+		authAxios
 			.put(`${API_URL}/learning-systems/${id}`, { name, id })
 			.then((res) => res.data)
 			.catch(handleApiError),
 
 	deleteLearningSystem: async (id: string): Promise<void> =>
-		axios
+		authAxios
 			.delete(`${API_URL}/learning-systems/${id}`)
-			.then(() => {}) // Return void
+			.then(() => {})
 			.catch(handleApiError),
 
 	addSubject: async (systemId: string, name: string): Promise<Subject> =>
-		axios
+		authAxios
 			.post(`${API_URL}/learning-systems/${systemId}/subjects`, {
 				name,
 				learningSystemId: systemId
@@ -90,7 +148,7 @@ export const api = {
 			.catch(handleApiError),
 
 	updateSubject: async (systemId: string, subjectId: string, name: string): Promise<Subject> =>
-		axios
+		authAxios
 			.put(`${API_URL}/learning-systems/${systemId}/subjects/${subjectId}`, {
 				name,
 				id: subjectId
@@ -99,13 +157,13 @@ export const api = {
 			.catch(handleApiError),
 
 	removeSubject: async (systemId: string, subjectId: string): Promise<void> =>
-		axios
+		authAxios
 			.delete(`${API_URL}/learning-systems/${systemId}/subjects/${subjectId}`)
-			.then(() => {}) // Return void
+			.then(() => {})
 			.catch(handleApiError),
 
 	addQualification: async (subjectId: string, name: string): Promise<Qualification> =>
-		axios
+		authAxios
 			.post(`${API_URL}/subjects/${subjectId}/qualifications`, { name, subjectId })
 			.then((res) => res.data)
 			.catch(handleApiError),
@@ -115,7 +173,7 @@ export const api = {
 		qualificationId: string,
 		name: string
 	): Promise<Qualification> =>
-		axios
+		authAxios
 			.put(`${API_URL}/subjects/${subjectId}/qualifications/${qualificationId}`, {
 				name,
 				id: qualificationId
@@ -124,8 +182,8 @@ export const api = {
 			.catch(handleApiError),
 
 	removeQualification: async (subjectId: string, qualificationId: string): Promise<void> =>
-		axios
+		authAxios
 			.delete(`${API_URL}/subjects/${subjectId}/qualifications/${qualificationId}`)
-			.then(() => {}) // Return void
+			.then(() => {})
 			.catch(handleApiError)
 }
