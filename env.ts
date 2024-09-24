@@ -13,7 +13,8 @@ const envSchema = z.object({
 	EMAIL_SECURE: z.string().transform((v) => v === 'true'),
 	EMAIL_USER: z.string().email(),
 	EMAIL_PASS: z.string(),
-	EMAIL_FROM: z.string().email()
+	EMAIL_FROM: z.string().email(),
+	NEXT_PUBLIC_API_URL: z.string().url()
 })
 
 const env = envSchema.parse(process.env)
