@@ -55,6 +55,8 @@
 		"date-fns": "4.0.0-beta.1",
 		"dotenv": "^16.4.5",
 		"framer-motion": "^11.5.4",
+		"js-cookie": "^3.0.5",
+		"jwt-decode": "^4.0.0",
 		"lodash": "^4.17.21",
 		"next": "14.2.11",
 		"next-themes": "^0.3.0",
@@ -70,6 +72,8 @@
 	"devDependencies": {
 		"@hookform/resolvers": "^3.9.0",
 		"@types/bcryptjs": "^2.4.6",
+		"@types/js-cookie": "^3.0.6",
+		"@types/jwt-decode": "^3.1.0",
 		"@types/lodash": "^4.17.7",
 		"@types/node": "^22.5.5",
 		"@types/nodemailer": "^6.4.16",

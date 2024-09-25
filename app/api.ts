@@ -1,5 +1,6 @@
 // api.ts
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
+import Cookies from 'js-cookie'
 
 export interface LearningSystem {
 	id: string
@@ -81,6 +82,15 @@ authAxios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 })
 
 export const api = {
+	setTutorConfiguration: async (tutorId: string, qualificationIds: string[]): Promise<void> =>
+		authAxios
+			.post(`${API_URL}/tutors/${tutorId}/qualifications`, {
+				tutorId,
+				qualificationIds
+			})
+			.then((res) => res.data)
+			.catch(handleApiError),
+
 	register: async (data: RegisterData): Promise<void> =>
 		axios
 			.post(`${API_URL}/Auth/register`, data)
@@ -90,26 +100,28 @@ export const api = {
 	login: async (data: LoginData): Promise<LoginResponse> =>
 		axios
 			.post(`${API_URL}/Auth/login`, data)
-			.then((res) => res.data)
+			.then((res) => {
+				const { token } = res.data
+				api.setAuthToken(token)
+				return res.data
+			})
 			.catch(handleApiError),
 
 	setAuthToken: (token: string) => {
-		if (typeof window !== 'undefined') {
-			window.sessionStorage.setItem('accessToken', token)
-		}
+		Cookies.set('accessToken', token, {
+			path: '/',
+			expires: 7, // Set expiration to 7 days, adjust as needed
+			secure: process.env.NODE_ENV === 'production', // Use secure cookie in production
+			sameSite: 'strict'
+		})
 	},
 
-	getAuthToken: (): string | null => {
-		if (typeof window !== 'undefined') {
-			return window.sessionStorage.getItem('accessToken')
-		}
-		return null
+	getAuthToken: (): string | undefined => {
+		return Cookies.get('accessToken')
 	},
 
 	clearAuthToken: () => {
-		if (typeof window !== 'undefined') {
-			window.sessionStorage.removeItem('accessToken')
-		}
+		Cookies.remove('accessToken')
 	},
 
 	getLearningSystems: async (): Promise<LearningSystem[]> =>

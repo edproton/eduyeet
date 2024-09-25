@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BookOpen, Calendar, ChevronLeft, Clock, FileText, Users, Users2 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
@@ -20,12 +20,31 @@ import {
 	TableRow
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import TutorConfigurationPage from './components/tutor-configuration/TutorConfiguration'
+import { useJwtStore } from './store'
 
 export default function HomePage() {
-	return <UsersAnalyticsPage />
+	const { decodedToken, decodeTokenFromCookie } = useJwtStore()
+
+	useEffect(() => {
+		decodeTokenFromCookie()
+	}, [decodeTokenFromCookie])
+
+	if (!decodedToken) {
+		return <div>Loading...</div>
+	}
+
+	if (
+		decodedToken.type === 'tutor' &&
+		(!decodedToken.qualifications || decodedToken.qualifications.length === 0)
+	) {
+		return <TutorConfigurationPage />
+	}
+
+	return <UserAnalyticsBoard />
 }
 
-function UsersAnalyticsPage() {
+function UserAnalyticsBoard() {
 	const [studentFilter, setStudentFilter] = useState({
 		subject: 'All',
 		status: 'All'

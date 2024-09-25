@@ -71,13 +71,6 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
 	}
 
 	const handleSaveSettings = () => {
-		console.log('Saving settings:', {
-			theme: isDarkMode ? 'dark' : 'light',
-			country: selectedCountry,
-			email,
-			bio,
-			notifications
-		})
 		toast({
 			title: 'Settings saved',
 			description: 'Your preferences have been updated.'
