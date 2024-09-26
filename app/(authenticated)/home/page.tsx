@@ -23,7 +23,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import TutorConfigurationPage from './components/tutor-configuration/TutorConfiguration'
 import { useQuery } from '@tanstack/react-query'
-import { api, GetMeResponse, PersonType } from '@/app/api'
+import { api, GetMeResponse } from '@/app/api'
 import { Skeleton } from '@/components/ui/skeleton'
 
 const LoadingSkeleton = () => {
@@ -62,11 +62,8 @@ export default function HomePage() {
 		return <div>No user data available</div>
 	}
 
-	if (
-		userData.type === PersonType.Tutor &&
-		(!userData.qualifications || userData.qualifications.length === 0)
-	) {
-		console.log('userData', userData)
+	if (!userData.qualificationsIds || userData.qualificationsIds.length === 0) {
+		console.log(userData)
 		return <TutorConfigurationPage userData={userData} />
 	}
 

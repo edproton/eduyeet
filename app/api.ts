@@ -46,7 +46,7 @@ export interface GetMeResponse {
 	name: string
 	email: string
 	type: PersonType
-	qualifications: string[]
+	qualificationsIds: string[]
 }
 
 interface ApiError {
@@ -97,9 +97,18 @@ authAxios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 })
 
 export const api = {
-	setTutorConfiguration: async (personId: string, qualificationIds: string[]): Promise<void> =>
+	setTutorQualifications: async (personId: string, qualificationIds: string[]): Promise<void> =>
 		authAxios
 			.post(`${API_URL}/tutors/${personId}/qualifications`, {
+				personId,
+				qualificationIds
+			})
+			.then((res) => res.data)
+			.catch(handleApiError),
+
+	setStudentQualifications: async (personId: string, qualificationIds: string[]): Promise<void> =>
+		authAxios
+			.post(`${API_URL}/students/${personId}/qualifications`, {
 				personId,
 				qualificationIds
 			})

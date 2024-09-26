@@ -10,45 +10,47 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
-import { api, GetMeResponse, LearningSystem, Subject } from '@/app/api'
+import { api, GetMeResponse, LearningSystem, PersonType, Qualification, Subject } from '@/app/api'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useRouter } from 'next/navigation'
 
 interface StoreState {
-	selectedSystems: string[]
-	selectedSubjects: string[]
-	selectedQualifications: string[]
-	searchSystem: string
-	searchSubject: string
-	searchQualification: string
+	selectedItems: Record<string, string[]>
+	searchTerms: Record<string, string>
 	currentStep: number
-	setSelectedSystems: (ids: string[]) => void
-	setSelectedSubjects: (ids: string[]) => void
-	setSelectedQualifications: (ids: string[]) => void
-	setSearchSystem: (search: string) => void
-	setSearchSubject: (search: string) => void
-	setSearchQualification: (search: string) => void
+	setSelectedItems: (step: string, ids: string[]) => void
+	setSearchTerm: (step: string, search: string) => void
 	setCurrentStep: (step: number) => void
 }
 
 const useStore = create<StoreState>((set) => ({
-	selectedSystems: [],
-	selectedSubjects: [],
-	selectedQualifications: [],
-	searchSystem: '',
-	searchSubject: '',
-	searchQualification: '',
+	selectedItems: {
+		systems: [],
+		subjects: [],
+		qualifications: []
+	},
+	searchTerms: {
+		systems: '',
+		subjects: '',
+		qualifications: ''
+	},
 	currentStep: 1,
-	setSelectedSystems: (ids) =>
-		set({ selectedSystems: ids, selectedSubjects: [], selectedQualifications: [] }),
-	setSelectedSubjects: (ids) => set({ selectedSubjects: ids, selectedQualifications: [] }),
-	setSelectedQualifications: (ids) => set({ selectedQualifications: ids }),
-	setSearchSystem: (search) => set({ searchSystem: search }),
-	setSearchSubject: (search) => set({ searchSubject: search }),
-	setSearchQualification: (search) => set({ searchQualification: search }),
+	setSelectedItems: (step, ids) =>
+		set((state) => ({
+			selectedItems: { ...state.selectedItems, [step]: ids }
+		})),
+	setSearchTerm: (step, search) =>
+		set((state) => ({
+			searchTerms: { ...state.searchTerms, [step]: search }
+		})),
 	setCurrentStep: (step) => set({ currentStep: step })
 }))
 
-const StepIndicator: React.FC<{ step: number; currentStep: number }> = ({ step, currentStep }) => {
+const StepIndicator: React.FC<{ step: number; currentStep: number; label: string }> = ({
+	step,
+	currentStep,
+	label
+}) => {
 	const isActive = step === currentStep
 	const isCompleted = step < currentStep
 
@@ -65,65 +67,129 @@ const StepIndicator: React.FC<{ step: number; currentStep: number }> = ({ step, 
 			>
 				{isCompleted ? <Check className="h-6 w-6" /> : step}
 			</div>
-			<div className="text-sm mt-2">
-				{step === 1 ? 'Systems' : step === 2 ? 'Subjects' : 'Qualifications'}
-			</div>
+			<div className="text-sm mt-2">{label}</div>
 		</div>
 	)
 }
 
-const SubjectTree: React.FC<{
-	subjects: Subject[]
-	selectedSubjects: string[]
-	onSubjectToggle: (subjectId: string) => void
-}> = ({ subjects, selectedSubjects, onSubjectToggle }) => {
+type SystemItem = LearningSystem
+type SubjectItem = { id: string; name: string; subjects: Subject[] }
+type QualificationItem = { id: string; name: string; qualifications: Qualification[] }
+
+type StepItem = SystemItem | SubjectItem | QualificationItem
+
+interface ItemListProps {
+	items: StepItem[]
+	selectedItems: string[]
+	onItemToggle: (itemId: string) => void
+	itemType: 'system' | 'subject' | 'qualification'
+	step: number
+}
+
+interface ItemListProps {
+	items: StepItem[]
+	selectedItems: string[]
+	onItemToggle: (itemId: string) => void
+	itemType: 'system' | 'subject' | 'qualification'
+	step: number
+}
+
+const ItemList: React.FC<ItemListProps> = ({
+	items,
+	selectedItems,
+	onItemToggle,
+	itemType,
+	step
+}) => {
+	if (items.length === 0) {
+		return (
+			<p className="text-muted-foreground">No {itemType}s found matching your search criteria.</p>
+		)
+	}
+
 	return (
-		<div className="space-y-2">
-			{subjects.map((subject) => (
-				<div key={subject.id} className="flex items-center space-x-2">
-					<Checkbox
-						id={`subject-${subject.id}`}
-						checked={selectedSubjects.includes(subject.id)}
-						onCheckedChange={() => onSubjectToggle(subject.id)}
-					/>
-					<label
-						htmlFor={`subject-${subject.id}`}
-						className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-					>
-						{subject.name}
-					</label>
+		<div className="space-y-">
+			{items.map((item) => (
+				<div key={item.id} className="mb-4">
+					<div className="flex items-center space-x-2 font-semibold">
+						{step === 1 && (
+							<>
+								<Checkbox
+									id={`${itemType}-${item.id}`}
+									checked={selectedItems.includes(item.id)}
+									onCheckedChange={() => onItemToggle(item.id)}
+								/>
+								<label htmlFor={`${itemType}-${item.id}`}>{item.name}</label>
+							</>
+						)}
+						{step === 2 && 'subjects' in item && (
+							<>
+								<span>{item.name}</span>
+								<div className="ml-6 mt-2 space-y-2">
+									{item.subjects.map((subject) => (
+										<div key={subject.id} className="flex items-center space-x-2">
+											<Checkbox
+												id={`subject-${subject.id}`}
+												checked={selectedItems.includes(subject.id)}
+												onCheckedChange={() => onItemToggle(subject.id)}
+											/>
+											<label
+												htmlFor={`subject-${subject.id}`}
+												className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+											>
+												{subject.name}
+											</label>
+										</div>
+									))}
+								</div>
+							</>
+						)}
+						{step === 3 && 'qualifications' in item && (
+							<>
+								<span>{item.name}</span>
+								<div className="ml-6 mt-2 space-y-2">
+									{item.qualifications.map((qual) => (
+										<div key={qual.id} className="flex items-center space-x-2">
+											<Checkbox
+												id={`qualification-${qual.id}`}
+												checked={selectedItems.includes(qual.id)}
+												onCheckedChange={() => onItemToggle(qual.id)}
+											/>
+											<label
+												htmlFor={`qualification-${qual.id}`}
+												className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+											>
+												{qual.name}
+											</label>
+										</div>
+									))}
+								</div>
+							</>
+						)}
+					</div>
 				</div>
 			))}
 		</div>
 	)
 }
 
-interface TutorConfigurationMultiStepFormProps {
+interface ConfigurationMultiStepFormProps {
 	userData: GetMeResponse
 }
 
-const TutorConfigurationMultiStepForm: React.FC<TutorConfigurationMultiStepFormProps> = ({
-	userData
-}) => {
+const ConfigurationMultiStepForm: React.FC<ConfigurationMultiStepFormProps> = ({ userData }) => {
 	const {
-		selectedSystems,
-		selectedSubjects,
-		selectedQualifications,
-		searchSystem,
-		searchSubject,
-		searchQualification,
+		selectedItems,
+		searchTerms,
 		currentStep,
-		setSelectedSystems,
-		setSelectedSubjects,
-		setSelectedQualifications,
-		setSearchSystem,
-		setSearchSubject,
-		setSearchQualification,
+		setSelectedItems,
+		setSearchTerm,
 		setCurrentStep
 	} = useStore()
 
-	const queryClient = useQueryClient()
 	const { toast } = useToast()
+	const router = useRouter()
+	const queryClient = useQueryClient()
 
 	const { data: learningSystems = [], error: fetchError } = useQuery<LearningSystem[], Error>({
 		queryKey: ['learningSystems'],
@@ -140,33 +206,39 @@ const TutorConfigurationMultiStepForm: React.FC<TutorConfigurationMultiStepFormP
 		}
 	}, [fetchError, toast])
 
-	console.log(userData)
 	const saveMutation = useMutation({
-		mutationFn: (qualificationIds: string[]) =>
-			api.setTutorConfiguration(userData.personId, qualificationIds),
+		mutationFn: (qualificationIds: string[]) => {
+			if (userData.type === PersonType.Tutor) {
+				console.log('is tutor')
+				return api.setTutorQualifications(userData.personId, qualificationIds)
+			} else {
+				return api.setStudentQualifications(userData.personId, qualificationIds)
+			}
+		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['tutorConfiguration'] })
+			queryClient.invalidateQueries({
+				queryKey: ['user']
+			})
+
 			toast({
 				title: 'Success',
 				description: 'Your configuration has been saved successfully.'
 			})
+
+			router.refresh()
 		},
 		onError: (error) => {
 			toast({
 				variant: 'destructive',
 				title: 'Error',
-				description: `Failed to save configuration: ${error.message}`
+				description: `Failed to save configuration: ${(error as Error).message}`
 			})
 		}
 	})
 
 	const handleSave = () => {
-		saveMutation.mutate(selectedQualifications)
+		saveMutation.mutate(selectedItems.qualifications)
 	}
-
-	const filteredSystems = learningSystems.filter((system) =>
-		system.name.toLowerCase().includes(searchSystem.toLowerCase())
-	)
 
 	const handleNext = () => {
 		if (currentStep < 3) {
@@ -181,223 +253,116 @@ const TutorConfigurationMultiStepForm: React.FC<TutorConfigurationMultiStepFormP
 	}
 
 	const canProceedToNextStep = () => {
-		switch (currentStep) {
-			case 1:
-				return selectedSystems.length > 0
-			case 2:
-				return selectedSubjects.length > 0
-			case 3:
-				return selectedQualifications.length > 0
-			default:
-				return false
-		}
+		const step = ['systems', 'subjects', 'qualifications'][currentStep - 1]
+		return selectedItems[step].length > 0
 	}
 
 	const renderStep = () => {
-		switch (currentStep) {
-			case 1:
-				return (
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
-						transition={{ duration: 0.3 }}
-					>
-						<Card>
-							<CardHeader>
-								<CardTitle>Step 1: Select Learning Systems</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="space-y-4">
-									<Input
-										type="text"
-										value={searchSystem}
-										onChange={(e) => setSearchSystem(e.target.value)}
-										placeholder="Search systems"
-										className="w-full"
+		const steps: {
+			key: 'systems' | 'subjects' | 'qualifications'
+			title: string
+			items: StepItem[]
+			notFoundMessage: string
+		}[] = [
+			{
+				key: 'systems',
+				title: 'Select Learning Systems',
+				items: learningSystems.filter((system) =>
+					system.name.toLowerCase().includes(searchTerms.systems.toLowerCase())
+				),
+				notFoundMessage: 'No learning systems available. Please contact support.'
+			},
+			{
+				key: 'subjects',
+				title: 'Select Subjects',
+				items: learningSystems
+					.filter((system) => selectedItems.systems.includes(system.id))
+					.map((system) => ({
+						id: system.id,
+						name: system.name,
+						subjects: system.subjects.filter((subject) =>
+							subject.name.toLowerCase().includes(searchTerms.subjects.toLowerCase())
+						)
+					}))
+					.filter((system) => system.subjects.length > 0),
+				notFoundMessage:
+					'No subjects found matching your search criteria. Please try a different search term or go back to select different learning systems.'
+			},
+			{
+				key: 'qualifications',
+				title: 'Select Qualifications',
+				items: learningSystems
+					.filter((system) => selectedItems.systems.includes(system.id))
+					.flatMap((system) =>
+						system.subjects
+							.filter((subject) => selectedItems.subjects.includes(subject.id))
+							.map((subject) => ({
+								id: subject.id,
+								name: subject.name,
+								qualifications: subject.qualifications.filter((qual) =>
+									qual.name.toLowerCase().includes(searchTerms.qualifications.toLowerCase())
+								)
+							}))
+					)
+					.filter((subject) => subject.qualifications.length > 0),
+				notFoundMessage:
+					'No qualifications found matching your search criteria. Please try a different search term or go back to select different subjects.'
+			}
+		]
+
+		const currentStepData = steps[currentStep - 1]
+
+		return (
+			<motion.div
+				initial={{ opacity: 0, y: 20 }}
+				animate={{ opacity: 1, y: 0 }}
+				exit={{ opacity: 0, y: -20 }}
+				transition={{ duration: 0.3 }}
+			>
+				<Card>
+					<CardHeader>
+						<CardTitle>
+							Step {currentStep}: {currentStepData.title}
+						</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="space-y-4">
+							<Input
+								type="text"
+								value={searchTerms[currentStepData.key]}
+								onChange={(e) => setSearchTerm(currentStepData.key, e.target.value)}
+								placeholder={`Search ${currentStepData.key}`}
+								className="w-full"
+							/>
+							<ScrollArea className="h-[400px] pr-4">
+								{currentStepData.items.length > 0 ? (
+									<ItemList
+										items={currentStepData.items}
+										selectedItems={selectedItems[currentStepData.key]}
+										onItemToggle={(itemId) => {
+											setSelectedItems(
+												currentStepData.key,
+												selectedItems[currentStepData.key].includes(itemId)
+													? selectedItems[currentStepData.key].filter((id) => id !== itemId)
+													: [...selectedItems[currentStepData.key], itemId]
+											)
+										}}
+										itemType={
+											currentStepData.key.slice(0, -1) as 'system' | 'subject' | 'qualification'
+										}
+										step={currentStep}
 									/>
-									<ScrollArea className="h-[400px] pr-4">
-										{filteredSystems.length > 0 ? (
-											filteredSystems.map((system) => (
-												<div key={system.id} className="flex items-center space-x-2 py-2">
-													<Checkbox
-														id={`system-${system.id}`}
-														checked={selectedSystems.includes(system.id)}
-														onCheckedChange={() => {
-															setSelectedSystems(
-																selectedSystems.includes(system.id)
-																	? selectedSystems.filter((id) => id !== system.id)
-																	: [...selectedSystems, system.id]
-															)
-														}}
-													/>
-													<label
-														htmlFor={`system-${system.id}`}
-														className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-													>
-														{system.name}
-													</label>
-												</div>
-											))
-										) : (
-											<p className="text-muted-foreground">No learning systems found</p>
-										)}
-									</ScrollArea>
-								</div>
-							</CardContent>
-						</Card>
-					</motion.div>
-				)
-			case 2:
-				return (
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
-						transition={{ duration: 0.3 }}
-					>
-						<Card>
-							<CardHeader>
-								<CardTitle>Step 2: Select Subjects</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="space-y-4">
-									<Input
-										type="text"
-										value={searchSubject}
-										onChange={(e) => setSearchSubject(e.target.value)}
-										placeholder="Search subjects within selected systems"
-										className="w-full"
-									/>
-									<ScrollArea className="h-[400px] pr-4">
-										{filteredSystems
-											.filter((system) => selectedSystems.includes(system.id))
-											.map((system) => {
-												const filteredSubjects = system.subjects.filter((subject) =>
-													subject.name.toLowerCase().includes(searchSubject.toLowerCase())
-												)
-
-												if (filteredSubjects.length === 0) return null
-
-												return (
-													<div key={system.id} className="mb-4">
-														<h3 className="text-lg font-semibold mb-2">{system.name} System</h3>
-														<SubjectTree
-															subjects={filteredSubjects}
-															selectedSubjects={selectedSubjects}
-															onSubjectToggle={(subjectId) => {
-																setSelectedSubjects(
-																	selectedSubjects.includes(subjectId)
-																		? selectedSubjects.filter((id) => id !== subjectId)
-																		: [...selectedSubjects, subjectId]
-																)
-															}}
-														/>
-													</div>
-												)
-											})}
-										{filteredSystems.filter((system) => selectedSystems.includes(system.id))
-											.length === 0 && <p className="text-muted-foreground">No subjects found</p>}
-									</ScrollArea>
-								</div>
-							</CardContent>
-						</Card>
-					</motion.div>
-				)
-			case 3:
-				return (
-					<motion.div
-						initial={{ opacity: 0, y: 20 }}
-						animate={{ opacity: 1, y: 0 }}
-						exit={{ opacity: 0, y: -20 }}
-						transition={{ duration: 0.3 }}
-					>
-						<Card>
-							<CardHeader>
-								<CardTitle>Step 3: Select Qualifications</CardTitle>
-							</CardHeader>
-							<CardContent>
-								<div className="space-y-4">
-									<Input
-										type="text"
-										value={searchQualification}
-										onChange={(e) => setSearchQualification(e.target.value)}
-										placeholder="Search qualifications"
-										className="w-full"
-									/>
-									<ScrollArea className="h-[400px] pr-4">
-										{filteredSystems
-											.filter((system) => selectedSystems.includes(system.id))
-											.map((system) => {
-												const subjectsWithQualifications = system.subjects
-													.filter((subject) => selectedSubjects.includes(subject.id))
-													.filter((subject) =>
-														subject.qualifications.some((qualification) =>
-															qualification.name
-																.toLowerCase()
-																.includes(searchQualification.toLowerCase())
-														)
-													)
-
-												if (subjectsWithQualifications.length === 0) return null
-
-												return (
-													<div key={system.id} className="mb-6">
-														<h3 className="text-xl font-bold mb-3">{system.name} System</h3>
-														{subjectsWithQualifications.map((subject) => (
-															<div key={subject.id} className="mb-4 ml-4">
-																<h4 className="text-lg font-semibold mb-2">{subject.name}</h4>
-																{subject.qualifications
-																	.filter((qualification) =>
-																		qualification.name
-																			.toLowerCase()
-																			.includes(searchQualification.toLowerCase())
-																	)
-																	.map((qualification) => (
-																		<div
-																			key={qualification.id}
-																			className="flex items-center space-x-2 py-1 ml-4"
-																		>
-																			<Checkbox
-																				id={`qualification-${qualification.id}`}
-																				checked={selectedQualifications.includes(qualification.id)}
-																				onCheckedChange={() => {
-																					setSelectedQualifications(
-																						selectedQualifications.includes(qualification.id)
-																							? selectedQualifications.filter(
-																									(id) => id !== qualification.id
-																								)
-																							: [...selectedQualifications, qualification.id]
-																					)
-																				}}
-																			/>
-																			<label
-																				htmlFor={`qualification-${qualification.id}`}
-																				className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-																			>
-																				{qualification.name}
-																			</label>
-																		</div>
-																	))}
-															</div>
-														))}
-													</div>
-												)
-											})}
-										{filteredSystems.filter((system) => selectedSystems.includes(system.id))
-											.length === 0 && (
-											<p className="text-muted-foreground">No qualifications found</p>
-										)}
-									</ScrollArea>
-								</div>
-							</CardContent>
-						</Card>
-					</motion.div>
-				)
-			default:
-				return null
-		}
+								) : (
+									<p className="text-muted-foreground">{currentStepData.notFoundMessage}</p>
+								)}
+							</ScrollArea>
+						</div>
+					</CardContent>
+				</Card>
+			</motion.div>
+		)
 	}
+
 	return (
 		<motion.div
 			className="space-y-6 max-w-7xl mx-auto"
@@ -405,27 +370,30 @@ const TutorConfigurationMultiStepForm: React.FC<TutorConfigurationMultiStepFormP
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.5 }}
 		>
-			<h1 className="text-3xl font-bold">Tutor Configuration</h1>
+			<h1 className="text-3xl font-bold">
+				{userData.type === PersonType.Tutor ? 'Tutor Configuration' : 'Student Configuration'}
+			</h1>
 			<p className="text-muted-foreground">
-				Before starting your experience you will need to select your qualifications.
+				Please select your learning systems, subjects, and qualifications to personalize your
+				experience.
 			</p>
 
 			<div className="flex justify-between items-center mb-8">
-				<StepIndicator step={1} currentStep={currentStep} />
-				<div className="h-1 flex-1 bg-muted mx-4">
-					<div
-						className="h-1 bg-primary transition-all duration-300 ease-in-out"
-						style={{ width: `${(Math.min(currentStep - 1, 1) / 1) * 100}%` }}
-					></div>
-				</div>
-				<StepIndicator step={2} currentStep={currentStep} />
-				<div className="h-1 flex-1 bg-muted mx-4">
-					<div
-						className="h-1 bg-primary transition-all duration-300 ease-in-out"
-						style={{ width: `${(Math.max(0, Math.min(currentStep - 2, 1)) / 1) * 100}%` }}
-					></div>
-				</div>
-				<StepIndicator step={3} currentStep={currentStep} />
+				{['Systems', 'Subjects', 'Qualifications'].map((label, index) => (
+					<React.Fragment key={label}>
+						<StepIndicator step={index + 1} currentStep={currentStep} label={label} />
+						{index < 2 && (
+							<div className="h-1 flex-1 bg-muted mx-4">
+								<div
+									className="h-1 bg-primary transition-all duration-300 ease-in-out"
+									style={{
+										width: `${(Math.max(0, Math.min(currentStep - index - 1, 1)) / 1) * 100}%`
+									}}
+								></div>
+							</div>
+						)}
+					</React.Fragment>
+				))}
 			</div>
 
 			<AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
@@ -460,4 +428,4 @@ const TutorConfigurationMultiStepForm: React.FC<TutorConfigurationMultiStepFormP
 	)
 }
 
-export default TutorConfigurationMultiStepForm
+export default ConfigurationMultiStepForm
