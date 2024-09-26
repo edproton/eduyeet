@@ -10,9 +10,8 @@ import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useToast } from '@/hooks/use-toast'
 import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
-import { api, LearningSystem, Subject } from '@/app/api'
+import { api, GetMeResponse, LearningSystem, Subject } from '@/app/api'
 import { AnimatePresence, motion } from 'framer-motion'
-import { useJwtStore } from '../../store'
 
 interface StoreState {
 	selectedSystems: string[]
@@ -99,7 +98,13 @@ const SubjectTree: React.FC<{
 	)
 }
 
-const TutorConfigurationMultiStepForm: React.FC = () => {
+interface TutorConfigurationMultiStepFormProps {
+	userData: GetMeResponse
+}
+
+const TutorConfigurationMultiStepForm: React.FC<TutorConfigurationMultiStepFormProps> = ({
+	userData
+}) => {
 	const {
 		selectedSystems,
 		selectedSubjects,
@@ -120,8 +125,6 @@ const TutorConfigurationMultiStepForm: React.FC = () => {
 	const queryClient = useQueryClient()
 	const { toast } = useToast()
 
-	const currentTutorId = useJwtStore((state) => state.decodedToken!.personId!)
-
 	const { data: learningSystems = [], error: fetchError } = useQuery<LearningSystem[], Error>({
 		queryKey: ['learningSystems'],
 		queryFn: api.getLearningSystems
@@ -139,7 +142,7 @@ const TutorConfigurationMultiStepForm: React.FC = () => {
 
 	const saveMutation = useMutation({
 		mutationFn: (qualificationIds: string[]) =>
-			api.setTutorConfiguration(currentTutorId, qualificationIds),
+			api.setTutorConfiguration(userData.id, qualificationIds),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['tutorConfiguration'] })
 			toast({

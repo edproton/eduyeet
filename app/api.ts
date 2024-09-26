@@ -35,6 +35,16 @@ interface LoginResponse {
 	token: string
 }
 
+type PersonType = 'tutor' | 'student'
+
+export interface GetMeResponse {
+	id: string
+	name: string
+	email: string
+	type: PersonType
+	qualifications: string[]
+}
+
 interface ApiError {
 	errors: Array<{
 		code: string
@@ -90,6 +100,13 @@ export const api = {
 			})
 			.then((res) => res.data)
 			.catch(handleApiError),
+
+	getMe: async (): Promise<GetMeResponse> => {
+		return authAxios
+			.get(`${API_URL}/auth/me`)
+			.then((res) => res.data)
+			.catch(handleApiError)
+	},
 
 	register: async (data: RegisterData): Promise<void> =>
 		axios

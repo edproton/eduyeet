@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { BookOpen, Calendar, ChevronLeft, Clock, FileText, Users, Users2 } from 'lucide-react'
 
 import { Badge } from '@/components/ui/badge'
@@ -21,24 +21,36 @@ import {
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import TutorConfigurationPage from './components/tutor-configuration/TutorConfiguration'
-import { useJwtStore } from './store'
+import { useQuery } from '@tanstack/react-query'
+import { api, GetMeResponse } from '@/app/api'
 
 export default function HomePage() {
-	const { decodedToken, decodeTokenFromCookie } = useJwtStore()
+	const {
+		data: userData,
+		isLoading,
+		error
+	} = useQuery<GetMeResponse>({
+		queryKey: ['user'],
+		queryFn: api.getMe
+	})
 
-	useEffect(() => {
-		decodeTokenFromCookie()
-	}, [decodeTokenFromCookie])
-
-	if (!decodedToken) {
+	if (isLoading) {
 		return <div>Loading...</div>
 	}
 
+	if (error) {
+		return <div>Error: {(error as Error).message}</div>
+	}
+
+	if (!userData) {
+		return <div>No user data available</div>
+	}
+
 	if (
-		decodedToken.type === 'tutor' &&
-		(!decodedToken.qualifications || decodedToken.qualifications.length === 0)
+		userData.type === 'tutor' &&
+		(!userData.qualifications || userData.qualifications.length === 0)
 	) {
-		return <TutorConfigurationPage />
+		return <TutorConfigurationPage userData={userData} />
 	}
 
 	return <UserAnalyticsBoard />
