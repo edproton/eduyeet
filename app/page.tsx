@@ -2,19 +2,101 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
-import { motion } from 'framer-motion'
-import { Sun, Moon, Book, Calendar } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { useRouter } from 'next/navigation'
+import {
+	Sun,
+	Moon,
+	Zap,
+	Calendar,
+	Laptop,
+	Calculator,
+	FlaskConical,
+	Languages,
+	Clock,
+	Palette,
+	Cpu
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default function Home() {
 	const { theme, setTheme } = useTheme()
 	const [mounted, setMounted] = useState(false)
+	const [showContent, setShowContent] = useState(false)
+	const router = useRouter()
 
 	useEffect(() => {
 		setMounted(true)
+		const timer = setTimeout(() => setShowContent(true), 2000)
+		return () => clearTimeout(timer)
 	}, [])
 
 	if (!mounted) return null
+
+	const cycleTheme = () => {
+		if (theme === 'system') setTheme('light')
+		else if (theme === 'light') setTheme('dark')
+		else setTheme('system')
+	}
+
+	const subjects = [
+		{ name: 'Mathematics', Icon: Calculator },
+		{ name: 'Science', Icon: FlaskConical },
+		{ name: 'Languages', Icon: Languages },
+		{ name: 'History', Icon: Clock },
+		{ name: 'Arts', Icon: Palette },
+		{ name: 'Technology', Icon: Cpu }
+	]
+
+	const containerVariants = {
+		hidden: { opacity: 0 },
+		visible: {
+			opacity: 1,
+			transition: {
+				delayChildren: 0.3,
+				staggerChildren: 0.1
+			}
+		}
+	}
+
+	const buttonVariants = {
+		hidden: { y: 20, opacity: 0 },
+		visible: {
+			y: 0,
+			opacity: 1,
+			transition: {
+				type: 'spring',
+				stiffness: 300,
+				damping: 24
+			}
+		},
+		tap: {
+			scale: 0.95,
+			transition: {
+				duration: 0.1
+			}
+		}
+	}
+
+	const subjectVariants = {
+		hidden: { opacity: 0, scale: 0.8 },
+		visible: {
+			opacity: 1,
+			scale: 1,
+			transition: {
+				type: 'spring',
+				stiffness: 300,
+				damping: 24
+			}
+		}
+	}
+
+	const handleCtaClick = () => {
+		setTimeout(() => {
+			router.push('/auth')
+		}, 200)
+	}
 
 	return (
 		<div className="min-h-screen flex flex-col">
@@ -24,19 +106,31 @@ export default function Home() {
 					animate={{ opacity: 1, y: 0 }}
 					className="text-3xl font-bold"
 				>
-					Eduyeet
+					{'Eduyeet'.split('').map((char, index) => (
+						<motion.span
+							key={index}
+							initial={{ opacity: 0, y: -20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.1 * index, duration: 0.3 }}
+						>
+							{char}
+						</motion.span>
+					))}
 				</motion.h1>
-				<Button
-					variant="outline"
-					size="icon"
-					onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-				>
-					{theme === 'dark' ? (
-						<Sun className="h-[1.2rem] w-[1.2rem]" />
-					) : (
-						<Moon className="h-[1.2rem] w-[1.2rem]" />
-					)}
-				</Button>
+				<div className="flex items-center space-x-4">
+					<Button variant="outline" size="icon" onClick={cycleTheme}>
+						{theme === 'dark' ? (
+							<Moon className="h-[1.2rem] w-[1.2rem]" />
+						) : theme === 'light' ? (
+							<Sun className="h-[1.2rem] w-[1.2rem]" />
+						) : (
+							<Laptop className="h-[1.2rem] w-[1.2rem]" />
+						)}
+					</Button>
+					<Button asChild>
+						<Link href="/auth">Login</Link>
+					</Button>
+				</div>
 			</header>
 
 			<main className="flex-grow flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -44,7 +138,7 @@ export default function Home() {
 					className="text-4xl md:text-6xl font-bold text-center mb-6"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.2 }}
+					transition={{ delay: 0.5, duration: 0.5 }}
 				>
 					Learn Anything, Anytime
 				</motion.h2>
@@ -53,7 +147,7 @@ export default function Home() {
 					className="text-xl text-center mb-8 max-w-2xl relative"
 					initial={{ opacity: 0, y: 20 }}
 					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 0.4 }}
+					transition={{ delay: 1, duration: 0.5 }}
 				>
 					<span className="relative inline-block">
 						{'Expert Tutoring, Anytime, Anywhere'.split('').map((char, index) => (
@@ -62,7 +156,7 @@ export default function Home() {
 								className="inline-block"
 								initial={{ opacity: 0 }}
 								animate={{ opacity: 1 }}
-								transition={{ delay: 0.6 + index * 0.05 }}
+								transition={{ delay: 1.5 + index * 0.03, duration: 0.2 }}
 							>
 								<span className="relative">
 									<span className="absolute inset-0 blur-sm bg-primary/30 animate-pulse"></span>
@@ -73,71 +167,74 @@ export default function Home() {
 					</span>
 				</motion.p>
 
-				<div className="flex flex-wrap justify-center gap-4 mb-12">
-					<motion.div
-						whileHover={{ scale: 1.05 }}
-						whileTap={{ scale: 0.95 }}
-						initial={{ opacity: 0, x: -20 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ delay: 0.6 }}
-					>
-						<Button className="text-lg px-6 py-3">
-							<Book className="mr-2 h-5 w-5" /> Explore Subjects
-						</Button>
-					</motion.div>
-					<motion.div
-						whileHover={{ scale: 1.05 }}
-						whileTap={{ scale: 0.95 }}
-						initial={{ opacity: 0, x: 20 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ delay: 0.8 }}
-					>
-						<Button variant="outline" className="text-lg px-6 py-3">
-							<Calendar className="mr-2 h-5 w-5" /> Book a Session
-						</Button>
-					</motion.div>
-				</div>
-
-				<motion.div
-					className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full max-w-4xl"
-					initial={{ opacity: 0, y: 40 }}
-					animate={{ opacity: 1, y: 0 }}
-					transition={{ delay: 1, staggerChildren: 0.2 }}
-				>
-					{['Mathematics', 'Science', 'Languages', 'History', 'Arts', 'Technology'].map(
-						(subject, index) => (
+				<AnimatePresence>
+					{showContent && (
+						<motion.div
+							className="w-full max-w-4xl"
+							variants={containerVariants}
+							initial="hidden"
+							animate="visible"
+						>
 							<motion.div
-								key={subject}
-								className="bg-card text-card-foreground p-6 rounded-lg shadow-lg"
-								whileHover={{ scale: 1.05, rotate: 2 }}
-								initial={{ opacity: 0, y: 20, scale: 0.8 }}
-								animate={{ opacity: 1, y: 0, scale: 1 }}
-								transition={{
-									delay: 1 + index * 0.1,
-									type: 'spring',
-									stiffness: 260,
-									damping: 20
-								}}
+								className="flex flex-wrap justify-center gap-4 mb-12"
+								variants={containerVariants}
 							>
-								<motion.h3
-									className="text-xl font-semibold mb-2"
-									initial={{ opacity: 0, y: -10 }}
-									animate={{ opacity: 1, y: 0 }}
-									transition={{ delay: 1.2 + index * 0.1 }}
+								<motion.div variants={buttonVariants} whileHover={{ scale: 1.05 }} whileTap="tap">
+									<Button
+										className="text-lg px-6 py-3 bg-slate-700 hover:bg-slate-800 text-white"
+										onClick={handleCtaClick}
+									>
+										<Zap className="mr-2 h-5 w-5" /> Unlock Your Success Now
+									</Button>
+								</motion.div>
+								<motion.div
+									variants={buttonVariants}
+									whileHover={{ scale: 1.05 }}
+									whileTap={{ scale: 0.95 }}
 								>
-									{subject}
-								</motion.h3>
-								<motion.p
-									initial={{ opacity: 0 }}
-									animate={{ opacity: 1 }}
-									transition={{ delay: 1.4 + index * 0.1 }}
-								>
-									Discover the wonders of {subject.toLowerCase()} with our expert tutors.
-								</motion.p>
+									<motion.div
+										animate={{
+											scale: [1, 1.05, 1],
+											transition: {
+												duration: 1.5,
+												repeat: Infinity,
+												repeatType: 'reverse'
+											}
+										}}
+									>
+										<Button
+											variant="outline"
+											className="text-lg px-6 py-3 bg-green-500 hover:bg-green-600 text-white border-green-500 hover:border-green-600"
+										>
+											<Calendar className="mr-2 h-5 w-5" /> Free Session
+										</Button>
+									</motion.div>
+								</motion.div>
 							</motion.div>
-						)
+
+							<motion.div
+								className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 w-full"
+								variants={containerVariants}
+							>
+								{subjects.map(({ name, Icon }) => (
+									<motion.div
+										key={name}
+										className="bg-card text-card-foreground p-6 rounded-lg shadow-lg"
+										variants={subjectVariants}
+										whileHover={{ scale: 1.05, rotate: 2 }}
+										transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+									>
+										<div className="flex items-center mb-4">
+											<Icon className="h-6 w-6 mr-2" />
+											<h3 className="text-xl font-semibold">{name}</h3>
+										</div>
+										<p>Discover the wonders of {name.toLowerCase()} with our expert tutors.</p>
+									</motion.div>
+								))}
+							</motion.div>
+						</motion.div>
 					)}
-				</motion.div>
+				</AnimatePresence>
 			</main>
 
 			<footer className="p-4 text-center">

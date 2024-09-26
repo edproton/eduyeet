@@ -2,31 +2,31 @@
 
 import { useState, useEffect } from 'react'
 import { useTheme } from 'next-themes'
-import { Check, ChevronsUpDown } from 'lucide-react'
-import { cn } from '@/lib/utils'
+// import { Check, ChevronsUpDown } from 'lucide-react'
+// import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import {
-	Command,
-	CommandEmpty,
-	CommandGroup,
-	CommandInput,
-	CommandItem,
-	CommandList
-} from '@/components/ui/command'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+// import {
+// 	Command,
+// 	CommandEmpty,
+// 	CommandGroup,
+// 	CommandInput,
+// 	CommandItem,
+// 	CommandList
+// } from '@/components/ui/command'
+// import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { toast } from '@/hooks/use-toast'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'
-import Flag from 'react-world-flags'
+// import Flag from 'react-world-flags'
 
-const countries = [
-	{ value: 620, label: 'Portugal' },
-	{ value: 826, label: 'United Kingdom of Great Britain and Northern Ireland' }
-]
+// const countries = [
+// 	{ value: 620, label: 'Portugal' },
+// 	{ value: 826, label: 'United Kingdom of Great Britain and Northern Ireland' }
+// ]
 
 interface SettingsFormProps {
 	initialSettings?: {
@@ -44,10 +44,10 @@ interface SettingsFormProps {
 export default function SettingsForm({ initialSettings }: SettingsFormProps) {
 	const { theme, setTheme } = useTheme()
 	const [isDarkMode, setIsDarkMode] = useState(false)
-	const [selectedCountry, setSelectedCountry] = useState<number | undefined>(undefined)
+	// const [selectedCountry, setSelectedCountry] = useState<number | undefined>(undefined)
 	const [mounted, setMounted] = useState(false)
-	const [open, setOpen] = useState(false)
-	const [value, setValue] = useState<number | undefined>(undefined)
+	// const [open, setOpen] = useState(false)
+	// const [value, setValue] = useState<number | undefined>(undefined)
 	const [email, setEmail] = useState('')
 	const [bio, setBio] = useState('')
 	const [notifications, setNotifications] = useState({
@@ -58,8 +58,8 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
 	useEffect(() => {
 		setMounted(true)
 		setIsDarkMode(theme === 'dark')
-		setSelectedCountry(initialSettings?.country || 620)
-		setValue(initialSettings?.country || 620)
+		// setSelectedCountry(initialSettings?.country || 620)
+		// setValue(initialSettings?.country || 620)
 		setEmail(initialSettings?.email || '')
 		setBio(initialSettings?.bio || '')
 		setNotifications(initialSettings?.notifications || { email: false, push: false })
@@ -133,7 +133,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
 							/>
 						</div>
 						<Separator />
-						<div className="space-y-2 flex flex-col gap-2">
+						{/* <div className="space-y-2 flex flex-col gap-2">
 							<Label htmlFor="country-select">Country</Label>
 							<Popover open={open} onOpenChange={setOpen}>
 								<PopoverTrigger asChild>
@@ -190,7 +190,7 @@ export default function SettingsForm({ initialSettings }: SettingsFormProps) {
 									</Command>
 								</PopoverContent>
 							</Popover>
-						</div>
+						</div> */}
 					</CardContent>
 				</Card>
 

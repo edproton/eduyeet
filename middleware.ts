@@ -17,7 +17,7 @@ export function middleware(request: NextRequest) {
 
 	// If user is logged in and trying to access the auth page
 	if (accessToken && pathname === '/auth') {
-		return NextResponse.redirect(new URL('/', request.url))
+		return NextResponse.redirect(new URL('/home', request.url))
 	}
 
 	return NextResponse.next()
