@@ -140,9 +140,10 @@ const TutorConfigurationMultiStepForm: React.FC<TutorConfigurationMultiStepFormP
 		}
 	}, [fetchError, toast])
 
+	console.log(userData)
 	const saveMutation = useMutation({
 		mutationFn: (qualificationIds: string[]) =>
-			api.setTutorConfiguration(userData.id, qualificationIds),
+			api.setTutorConfiguration(userData.personId, qualificationIds),
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ['tutorConfiguration'] })
 			toast({
@@ -399,13 +400,15 @@ const TutorConfigurationMultiStepForm: React.FC<TutorConfigurationMultiStepFormP
 	}
 	return (
 		<motion.div
-			className="space-y-6 max-w-4xl mx-auto"
+			className="space-y-6 max-w-7xl mx-auto"
 			initial={{ opacity: 0, y: 20 }}
 			animate={{ opacity: 1, y: 0 }}
 			transition={{ duration: 0.5 }}
 		>
 			<h1 className="text-3xl font-bold">Tutor Configuration</h1>
-			<p className="text-muted-foreground">Configure your teaching preferences in 3 easy steps.</p>
+			<p className="text-muted-foreground">
+				Before starting your experience you will need to select your qualifications.
+			</p>
 
 			<div className="flex justify-between items-center mb-8">
 				<StepIndicator step={1} currentStep={currentStep} />

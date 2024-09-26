@@ -35,10 +35,14 @@ interface LoginResponse {
 	token: string
 }
 
-type PersonType = 'tutor' | 'student'
+export enum PersonType {
+	Tutor = 0,
+	Student = 1
+}
 
 export interface GetMeResponse {
 	id: string
+	personId: string
 	name: string
 	email: string
 	type: PersonType
@@ -75,6 +79,7 @@ const handleApiError = (error: unknown) => {
 			}
 		}
 	}
+
 	throw error
 }
 
@@ -92,10 +97,10 @@ authAxios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 })
 
 export const api = {
-	setTutorConfiguration: async (tutorId: string, qualificationIds: string[]): Promise<void> =>
+	setTutorConfiguration: async (personId: string, qualificationIds: string[]): Promise<void> =>
 		authAxios
-			.post(`${API_URL}/tutors/${tutorId}/qualifications`, {
-				tutorId,
+			.post(`${API_URL}/tutors/${personId}/qualifications`, {
+				personId,
 				qualificationIds
 			})
 			.then((res) => res.data)

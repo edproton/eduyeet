@@ -1,4 +1,5 @@
 'use client'
+
 import { useState } from 'react'
 import { BookOpen, Calendar, ChevronLeft, Clock, FileText, Users, Users2 } from 'lucide-react'
 
@@ -22,7 +23,22 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import TutorConfigurationPage from './components/tutor-configuration/TutorConfiguration'
 import { useQuery } from '@tanstack/react-query'
-import { api, GetMeResponse } from '@/app/api'
+import { api, GetMeResponse, PersonType } from '@/app/api'
+import { Skeleton } from '@/components/ui/skeleton'
+
+const LoadingSkeleton = () => {
+	return (
+		<div className="space-y-4">
+			<Skeleton className="h-8 w-[250px]" />
+			<div className="space-y-2">
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-full" />
+				<Skeleton className="h-4 w-3/4" />
+			</div>
+			<Skeleton className="h-[200px] w-full" />
+		</div>
+	)
+}
 
 export default function HomePage() {
 	const {
@@ -35,7 +51,7 @@ export default function HomePage() {
 	})
 
 	if (isLoading) {
-		return <div>Loading...</div>
+		return <LoadingSkeleton />
 	}
 
 	if (error) {
@@ -47,9 +63,10 @@ export default function HomePage() {
 	}
 
 	if (
-		userData.type === 'tutor' &&
+		userData.type === PersonType.Tutor &&
 		(!userData.qualifications || userData.qualifications.length === 0)
 	) {
+		console.log('userData', userData)
 		return <TutorConfigurationPage userData={userData} />
 	}
 
@@ -67,7 +84,7 @@ function UserAnalyticsBoard() {
 	})
 
 	return (
-		<Tabs defaultValue="students" className="space-y-4">
+		<Tabs defaultValue="students">
 			<TabsList>
 				<TabsTrigger value="students">Students</TabsTrigger>
 				<TabsTrigger value="tutors">Tutors</TabsTrigger>

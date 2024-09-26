@@ -154,16 +154,16 @@ export function RegisterForm() {
 						name="type"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>User Type</FormLabel>
+								<FormLabel>I want to</FormLabel>
 								<Select onValueChange={field.onChange} defaultValue={field.value}>
 									<FormControl>
 										<SelectTrigger>
-											<SelectValue placeholder="Select user type" />
+											<SelectValue />
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem value="0">Student</SelectItem>
-										<SelectItem value="1">Teacher</SelectItem>
+										<SelectItem value="0">teach (Tutor)</SelectItem>
+										<SelectItem value="1">learn (Student)</SelectItem>
 									</SelectContent>
 								</Select>
 								<FormMessage />
