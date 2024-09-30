@@ -1,4 +1,5 @@
-// LoginForm.tsx
+'use client'
+
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -16,21 +17,12 @@ import {
 	FormLabel,
 	FormMessage
 } from '@/components/ui/form'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle
-} from '@/components/ui/alert-dialog'
-import { CheckCircle } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import { api } from '@/app/api'
 
 const loginSchema = z.object({
-	email: z.string().email('Invalid email address'),
-	password: z.string().min(8, 'Password must be at least 8 characters')
+	email: z.string().email('Please enter a valid email address'),
+	password: z.string().min(8, 'Your password should be at least 8 characters')
 })
 
 type LoginFormValues = z.infer<typeof loginSchema>
@@ -38,7 +30,6 @@ type LoginFormValues = z.infer<typeof loginSchema>
 export function LoginForm() {
 	const { toast } = useToast()
 	const router = useRouter()
-	const [loginSuccess, setLoginSuccess] = React.useState(false)
 
 	const form = useForm<LoginFormValues>({
 		resolver: zodResolver(loginSchema),
@@ -51,22 +42,21 @@ export function LoginForm() {
 	const loginMutation = useMutation({
 		mutationFn: api.login,
 		onSuccess: (data) => {
-			// Store the token securely
 			localStorage.setItem('accessToken', data.token)
-
-			// Set the token for API calls
 			api.setAuthToken(data.token)
 
 			toast({
-				title: 'Success',
-				description: 'Login successful'
+				variant: 'success',
+				title: 'Welcome back!',
+				description: "It's great to see you again! We're taking you to your personalized dashboard."
 			})
-			setLoginSuccess(true)
+
+			router.push('/home')
 		},
 		onError: (error: Error) => {
 			toast({
 				variant: 'destructive',
-				title: 'Error',
+				title: 'Oops! Something went wrong',
 				description: error.message
 			})
 		}
@@ -76,41 +66,18 @@ export function LoginForm() {
 		loginMutation.mutate(data)
 	}
 
-	const handleDialogClose = () => {
-		setLoginSuccess(false)
-		// Redirect to dashboard or home page after successful login
-		router.push('/home')
-	}
-
 	return (
-		<>
-			<AlertDialog open={loginSuccess} onOpenChange={handleDialogClose}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle className="flex items-center">
-							<CheckCircle className="h-6 w-6 text-green-500 mr-2" />
-							Login Successful!
-						</AlertDialogTitle>
-						<AlertDialogDescription>
-							You have successfully logged in. You will be redirected to your dashboard.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogAction onClick={handleDialogClose}>Continue</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
-
+		<div className="w-full max-w-md mx-auto space-y-6">
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
 					<FormField
 						control={form.control}
 						name="email"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Email</FormLabel>
+								<FormLabel>{"What's your email address?"}</FormLabel>
 								<FormControl>
-									<Input type="email" placeholder="your.email@example.com" {...field} />
+									<Input type="email" placeholder="you@example.com" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -121,19 +88,26 @@ export function LoginForm() {
 						name="password"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Password</FormLabel>
+								<FormLabel>Enter your password</FormLabel>
 								<FormControl>
-									<Input type="password" placeholder="********" {...field} />
+									<Input type="password" placeholder="Your secret password" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<Button type="submit" className="w-full" disabled={loginMutation.isPending}>
-						{loginMutation.isPending ? 'Logging in...' : 'Login'}
+						{loginMutation.isPending ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								Logging you in...
+							</>
+						) : (
+							"Let's Go!"
+						)}
 					</Button>
 				</form>
 			</Form>
-		</>
+		</div>
 	)
 }

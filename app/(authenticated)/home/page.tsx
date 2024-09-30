@@ -21,10 +21,12 @@ import {
 	TableRow
 } from '@/components/ui/table'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import TutorConfigurationPage from './components/tutor-configuration/TutorConfiguration'
 import { useQuery } from '@tanstack/react-query'
-import { api, GetMeResponse } from '@/app/api'
+import { api, GetMeResponse, PersonType } from '@/app/api'
 import { Skeleton } from '@/components/ui/skeleton'
+import PersonQualificationsConfigurationForm from './components/configuration/PersonQualificationsConfigurationForm'
+import TutorAvailabilityConfigurationForm from './components/configuration/tutor-availability-configuration/TutorAvailabilityConfigurationForm'
+import BookingsComponent from './components/configuration/BookingsComponent'
 
 const LoadingSkeleton = () => {
 	return (
@@ -46,7 +48,7 @@ export default function HomePage() {
 		isLoading,
 		error
 	} = useQuery<GetMeResponse>({
-		queryKey: ['user'],
+		queryKey: ['getMe'],
 		queryFn: api.getMe
 	})
 
@@ -62,9 +64,16 @@ export default function HomePage() {
 		return <div>No user data available</div>
 	}
 
-	if (!userData.qualificationsIds || userData.qualificationsIds.length === 0) {
-		console.log(userData)
-		return <TutorConfigurationPage userData={userData} />
+	if (!userData.metadata.isQualificationsConfigured) {
+		return <PersonQualificationsConfigurationForm userData={userData} />
+	}
+
+	if (userData.type === PersonType.Tutor && !userData.metadata.isAvailabilityConfigured) {
+		return <TutorAvailabilityConfigurationForm userData={userData} />
+	}
+
+	if (userData.metadata.isQualificationsConfigured && userData.type !== PersonType.Tutor) {
+		return <BookingsComponent studentId={userData.personId} />
 	}
 
 	return <UserAnalyticsBoard />

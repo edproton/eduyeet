@@ -1,4 +1,3 @@
-// RegisterForm.tsx
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -7,6 +6,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { CustomFlagsSelect } from '@/components/ui/flag-select'
 import {
 	Select,
 	SelectContent,
@@ -31,14 +31,16 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import { CheckCircle } from 'lucide-react'
-import { api } from '@/app/api'
+import { CheckCircle, Loader2 } from 'lucide-react'
+import { PersonType } from '@/api/types'
+import { authApi } from '@/api/auth'
 
 const registerSchema = z.object({
-	name: z.string().min(2, 'Name must be at least 2 characters'),
-	email: z.string().email('Invalid email address'),
-	password: z.string().min(8, 'Password must be at least 8 characters'),
-	type: z.enum(['0', '1'])
+	name: z.string().min(2, 'Your name should be at least 2 characters'),
+	email: z.string().email('Please enter a valid email address'),
+	password: z.string().min(8, 'Your password should be at least 8 characters'),
+	type: z.nativeEnum(PersonType),
+	countryCode: z.string().min(1, 'Please let us know where you live')
 })
 
 type RegisterFormValues = z.infer<typeof registerSchema>
@@ -53,30 +55,31 @@ export function RegisterForm() {
 			name: '',
 			email: '',
 			password: '',
-			type: '0'
+			type: PersonType.Tutor,
+			countryCode: ''
 		}
 	})
 
 	const registerMutation = useMutation({
-		mutationFn: (data: RegisterFormValues) =>
-			api.register({
-				...data,
-				type: parseInt(data.type)
-			}),
-		onSuccess: () => {
-			toast({
-				title: 'Success',
-				description: 'Registration successful'
+		mutationFn: (data: RegisterFormValues) => {
+			console.log(data)
+			return authApi.register({
+				name: data.name,
+				email: data.email,
+				password: data.password,
+				type: data.type,
+				countryCode: data.countryCode
 			})
-			form.reset()
-			setRegistrationSuccess(true)
 		},
 		onError: (error: Error) => {
 			toast({
 				variant: 'destructive',
-				title: 'Error',
+				title: 'Oops! Something went wrong',
 				description: error.message
 			})
+		},
+		onSuccess: () => {
+			setRegistrationSuccess(true)
 		}
 	})
 
@@ -95,11 +98,11 @@ export function RegisterForm() {
 					<AlertDialogHeader>
 						<AlertDialogTitle className="flex items-center">
 							<CheckCircle className="h-6 w-6 text-green-500 mr-2" />
-							Registration Successful!
+							Welcome to Our Community!
 						</AlertDialogTitle>
 						<AlertDialogDescription>
-							Thank you for registering. Please check your email to confirm your account. You will
-							need to verify your email address before you can log in.
+							We&apos;re thrilled to have you on board! We&apos;ve sent a confirmation email to your
+							inbox. Please verify your email address to start your journey with us.
 						</AlertDialogDescription>
 					</AlertDialogHeader>
 					<AlertDialogFooter>
@@ -115,9 +118,9 @@ export function RegisterForm() {
 						name="name"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Name</FormLabel>
+								<FormLabel>What&apos;s your name?</FormLabel>
 								<FormControl>
-									<Input placeholder="Your name" {...field} />
+									<Input placeholder="Enter your name" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -128,9 +131,9 @@ export function RegisterForm() {
 						name="email"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Email</FormLabel>
+								<FormLabel>What&apos;s your email address?</FormLabel>
 								<FormControl>
-									<Input type="email" placeholder="your.email@example.com" {...field} />
+									<Input type="email" placeholder="you@example.com" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -141,9 +144,25 @@ export function RegisterForm() {
 						name="password"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Password</FormLabel>
+								<FormLabel>Create a password</FormLabel>
 								<FormControl>
-									<Input type="password" placeholder="********" {...field} />
+									<Input type="password" placeholder="Your secret password" {...field} />
+								</FormControl>
+								<FormMessage />
+								<p id="password-requirements" className="text-sm text-muted-foreground">
+									Make it strong! At least 8 characters long.
+								</p>
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="countryCode"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Where are you joining us from?</FormLabel>
+								<FormControl>
+									<CustomFlagsSelect value={field.value} onChange={field.onChange} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -154,16 +173,23 @@ export function RegisterForm() {
 						name="type"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>I want to</FormLabel>
-								<Select onValueChange={field.onChange} defaultValue={field.value}>
+								<FormLabel>I am here to...</FormLabel>
+								<Select
+									onValueChange={(value) => field.onChange(Number(value) as PersonType)}
+									defaultValue={field.value.toString()}
+								>
 									<FormControl>
 										<SelectTrigger>
 											<SelectValue />
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										<SelectItem value="0">teach (Tutor)</SelectItem>
-										<SelectItem value="1">learn (Student)</SelectItem>
+										<SelectItem value={PersonType.Tutor.toString()}>
+											Share my knowledge (Tutor)
+										</SelectItem>
+										<SelectItem value={PersonType.Student.toString()}>
+											Expand my horizons (Student)
+										</SelectItem>
 									</SelectContent>
 								</Select>
 								<FormMessage />
@@ -171,7 +197,14 @@ export function RegisterForm() {
 						)}
 					/>
 					<Button type="submit" className="w-full" disabled={registerMutation.isPending}>
-						{registerMutation.isPending ? 'Registering...' : 'Register'}
+						{registerMutation.isPending ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								Joining the community...
+							</>
+						) : (
+							"Let's Get Started!"
+						)}
 					</Button>
 				</form>
 			</Form>

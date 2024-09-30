@@ -46,7 +46,47 @@ export interface GetMeResponse {
 	name: string
 	email: string
 	type: PersonType
-	qualificationsIds: string[]
+	metadata: {
+		isAvailabilityConfigured?: boolean
+		isQualificationsConfigured: boolean
+	}
+}
+
+export interface AvailabilityDto {
+	day: DayOfWeek
+	timeSlots: TimeSlotDto[]
+}
+
+export interface TimeSlotDto {
+	startTime: string // Using string for TimeSpan, format: "HH:mm:ss"
+	endTime: string
+}
+
+// Enum for DayOfWeek (TypeScript doesn't have a built-in DayOfWeek enum)
+export enum DayOfWeek {
+	Sunday = 0,
+	Monday = 1,
+	Tuesday = 2,
+	Wednesday = 3,
+	Thursday = 4,
+	Friday = 5,
+	Saturday = 6
+}
+
+export interface CreateBookingResponse {
+	id: string
+	studentId: string
+	tutorId: string
+	qualificationId: string
+	startTime: string
+	endTime: string
+}
+
+export interface CreateBookingCommand {
+	studentId: string
+	tutorId: string
+	qualificationId: string
+	startTime: string
 }
 
 interface ApiError {
@@ -96,7 +136,74 @@ authAxios.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 	return config
 })
 
+export interface GetStudentWithQualificationsResponse {
+	id: string
+	name: string
+	qualifications: Qualification[]
+}
+
+export interface FindAvailableTutorsParams {
+	qualificationId: string
+	requestedDateTime: string
+}
+
+export interface AvailableTutorDto {
+	id: string
+	name: string
+}
+
+export interface FindAvailableTutorsResponse {
+	qualificationId: string
+	qualificationName: string
+	requestedDateTime: string
+	availableTutors: AvailableTutorDto[]
+}
+
 export const api = {
+	findAvailableTutors: async (
+		params: FindAvailableTutorsParams
+	): Promise<FindAvailableTutorsResponse> =>
+		authAxios
+			.get(`${API_URL}/bookings/available-tutors`, { params })
+			.then((res) => res.data)
+			.catch(handleApiError),
+
+	createBooking: async (data: CreateBookingCommand): Promise<CreateBookingResponse> =>
+		authAxios
+			.post(`${API_URL}/bookings`, data)
+			.then((res) => res.data)
+			.catch(handleApiError),
+
+	getStudentBookings: async (studentId: string): Promise<CreateBookingResponse[]> =>
+		authAxios
+			.get(`${API_URL}/bookings/students/${studentId}`)
+			.then((res) => res.data)
+			.catch(handleApiError),
+
+	getTutorBookings: async (tutorId: string): Promise<CreateBookingResponse[]> =>
+		authAxios
+			.get(`${API_URL}/bookings/tutors/${tutorId}`)
+			.then((res) => res.data)
+			.catch(handleApiError),
+
+	getStudent: async (studentId: string): Promise<GetStudentWithQualificationsResponse> =>
+		authAxios
+			.get(`${API_URL}/students/${studentId}`)
+			.then((res) => res.data)
+			.catch(handleApiError),
+
+	setTutorAvailability: async (
+		personId: string,
+		availabilities: AvailabilityDto[]
+	): Promise<void> =>
+		authAxios
+			.post(`${API_URL}/tutors/${personId}/availability`, {
+				personId,
+				availabilities
+			})
+			.then((res) => res.data)
+			.catch(handleApiError),
+
 	setTutorQualifications: async (personId: string, qualificationIds: string[]): Promise<void> =>
 		authAxios
 			.post(`${API_URL}/tutors/${personId}/qualifications`, {

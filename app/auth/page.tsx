@@ -56,10 +56,10 @@ export default function AuthPage() {
 				>
 					<Card className="w-full">
 						<CardHeader className="relative">
-							<div className="absolute top-0 right-0 p-4">
+							<div className="absolute top-2 right-2">
 								<Button
-									variant="ghost"
-									size="icon"
+									variant="outline"
+									size="sm"
 									onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
 									aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
 								>
@@ -103,8 +103,10 @@ export default function AuthPage() {
 								</div>
 							</Tabs>
 						</CardContent>
-						<CardFooter className="text-center text-xs lg:text-sm text-muted-foreground p-4">
-							By using EduYeet, you agree to our Terms of Service and Privacy Policy.
+						<CardFooter className="text-center text-xs lg:text-sm text-muted-foreground ">
+							{
+								"By joining EduYeet, you're becoming part of a community dedicated to lifelong learning. We value your privacy and commitment to growth."
+							}
 						</CardFooter>
 					</Card>
 				</motion.div>

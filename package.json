@@ -51,6 +51,7 @@
 		"@tanstack/zod-form-adapter": "^0.33.0",
 		"axios": "^1.7.7",
 		"cmdk": "1.0.0",
+		"date-fns": "^4.1.0",
 		"dotenv": "^16.4.5",
 		"framer-motion": "^11.5.4",
 		"js-cookie": "^3.0.5",
@@ -61,12 +62,14 @@
 		"react-dom": "^18",
 		"react-hook-form": "^7.53.0",
 		"react-world-flags": "^1.6.0",
+		"sharp": "^0.33.5",
 		"zod": "^3.23.8",
 		"zustand": "5.0.0-rc.2"
 	},
 	"devDependencies": {
 		"@hookform/resolvers": "^3.9.0",
 		"@tanstack/react-query-devtools": "^5.58.0",
+		"@types/date-fns": "^2.6.0",
 		"@types/js-cookie": "^3.0.6",
 		"@types/node": "^22.5.5",
 		"@types/react": "^18.3.7",

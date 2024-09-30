@@ -177,7 +177,9 @@ interface ConfigurationMultiStepFormProps {
 	userData: GetMeResponse
 }
 
-const ConfigurationMultiStepForm: React.FC<ConfigurationMultiStepFormProps> = ({ userData }) => {
+const PersonQualificationsConfigurationForm: React.FC<ConfigurationMultiStepFormProps> = ({
+	userData
+}) => {
 	const {
 		selectedItems,
 		searchTerms,
@@ -209,7 +211,6 @@ const ConfigurationMultiStepForm: React.FC<ConfigurationMultiStepFormProps> = ({
 	const saveMutation = useMutation({
 		mutationFn: (qualificationIds: string[]) => {
 			if (userData.type === PersonType.Tutor) {
-				console.log('is tutor')
 				return api.setTutorQualifications(userData.personId, qualificationIds)
 			} else {
 				return api.setStudentQualifications(userData.personId, qualificationIds)
@@ -217,7 +218,7 @@ const ConfigurationMultiStepForm: React.FC<ConfigurationMultiStepFormProps> = ({
 		},
 		onSuccess: () => {
 			queryClient.invalidateQueries({
-				queryKey: ['user']
+				queryKey: ['getMe']
 			})
 
 			toast({
@@ -428,4 +429,4 @@ const ConfigurationMultiStepForm: React.FC<ConfigurationMultiStepFormProps> = ({
 	)
 }
 
-export default ConfigurationMultiStepForm
+export default PersonQualificationsConfigurationForm
