@@ -56,7 +56,7 @@ export default function BookingsComponentWithApiIntegration({ studentId }: { stu
 		setTempDate(utcString)
 	}, [])
 
-	const handleDateChange = (e) => {
+	const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const localDate = new Date(e.target.value)
 		const utcString = localDate.toISOString().slice(0, 16)
 		setTempDate(utcString)
