@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { Button } from '@/components/ui/button'
@@ -49,22 +49,10 @@ export default function BookingsComponentWithApiIntegration({ studentId }: { stu
 	const [selectedDate, setSelectedDate] = useState<string>('')
 	const [tempDate, setTempDate] = useState('')
 
-	useEffect(() => {
-		// Set initial value to current UTC time
-		const now = new Date()
-		const utcString = now.toISOString().slice(0, 16)
-		setTempDate(utcString)
-	}, [])
-
 	const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const localDate = new Date(e.target.value)
-		const utcString = localDate.toISOString().slice(0, 16)
-		setTempDate(utcString)
+		setTempDate(e.target.value)
 	}
 
-	const formatForDisplay = (utcString: string) => {
-		return utcString.replace('T', ' ') + ' UTC'
-	}
 	const [selectedTutor, setSelectedTutor] = useState<string>('')
 
 	const {
@@ -164,7 +152,6 @@ export default function BookingsComponentWithApiIntegration({ studentId }: { stu
 							required
 							className="border rounded p-2"
 						/>
-						<p className="text-sm text-gray-600">Selected UTC time: {formatForDisplay(tempDate)}</p>
 					</div>
 				)
 			case 3:
