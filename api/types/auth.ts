@@ -23,6 +23,7 @@ export interface GetMeResponse {
 	name: string
 	email: string
 	type: PersonType
+	timeZoneId: string
 	metadata: {
 		isAvailabilityConfigured?: boolean
 		isQualificationsConfigured: boolean

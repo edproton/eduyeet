@@ -145,6 +145,7 @@ export interface GetStudentWithQualificationsResponse {
 export interface FindAvailableTutorsParams {
 	qualificationId: string
 	requestedDateTime: string
+	timeZoneId: string
 }
 
 export interface AvailableTutorDto {

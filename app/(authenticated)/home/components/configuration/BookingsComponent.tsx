@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/select'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { api, FindAvailableTutorsResponse } from '@/app/api'
+import { GetMeResponse } from '@/api/types'
+import { authApi } from '@/api/auth'
 
 // Types
 export interface GetStudentWithQualificationsResponse {
@@ -64,6 +66,11 @@ export default function BookingsComponentWithApiIntegration({ studentId }: { stu
 		queryFn: () => api.getStudent(studentId)
 	})
 
+	const { data: userData } = useQuery<GetMeResponse>({
+		queryKey: ['getMe'],
+		queryFn: authApi.getMe
+	})
+
 	const {
 		data: bookings,
 		isLoading: isLoadingBookings,
@@ -82,7 +89,8 @@ export default function BookingsComponentWithApiIntegration({ studentId }: { stu
 		queryFn: () =>
 			api.findAvailableTutors({
 				qualificationId: selectedQualification,
-				requestedDateTime: selectedDate
+				requestedDateTime: selectedDate,
+				timeZoneId: userData!.timeZoneId!
 			}),
 		enabled: !!selectedQualification && !!selectedDate
 	})
