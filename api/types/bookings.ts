@@ -1,3 +1,5 @@
+import { DayOfWeek } from '@/app/api'
+
 export interface CreateBookingCommand {
 	studentId: string
 	tutorId: string
@@ -14,19 +16,39 @@ export interface CreateBookingResponse {
 	endTime: string
 }
 
-export interface FindAvailableTutorsParams {
-	qualificationId: string
-	requestedDateTime: string
-}
-
-export interface AvailableTutorDto {
-	id: string
-	name: string
+export interface FindTutorAvailabilityParams {
+	tutorId: string
+	day: number
+	month: number
+	year: number
+	timeZoneId: string
 }
 
 export interface FindAvailableTutorsResponse {
+	tutor: Tutor
+	availability: AvailabilityDto
+}
+
+export interface Tutor {
+	id: string
+	name: string
+	countryCode?: number
+}
+
+export interface AvailabilityDto {
+	weekDay: DayOfWeek
+	timeslots: TimeSlot[]
+}
+
+export interface TimeSlot {
+	startTime: string
+	endTime: string
+}
+
+export interface GetAllTutorsByQualificationIdRequest {
 	qualificationId: string
-	qualificationName: string
-	requestedDateTime: string
-	availableTutors: AvailableTutorDto[]
+}
+
+export interface GetAllTutorsByQualificationIdResponse {
+	tutors: Tutor[]
 }

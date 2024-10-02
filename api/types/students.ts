@@ -1,7 +1,16 @@
-import { Qualification } from './learning-systems'
+
+export interface SetStudentQualificationsCommand {
+	personId: string;
+	qualificationIds: string[];
+}
+
+export interface QualificationDto {
+	id: string;
+	name: string;
+}
 
 export interface GetStudentWithQualificationsResponse {
-	id: string
-	name: string
-	qualifications: Qualification[]
+	studentId: string;
+	studentName: string;
+	qualifications: QualificationDto[];
 }

@@ -39,7 +39,7 @@ import {
 } from 'lucide-react'
 import { api, GetMeResponse } from '@/app/api'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from '@/hooks/use-toast'
+import { toast } from '@/components/ui/use-toast'
 import { useRouter } from 'next/navigation'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 

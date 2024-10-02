@@ -1,6 +1,5 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useTheme } from 'next-themes'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -19,16 +18,7 @@ import { RegisterForm } from './components/register-form'
 import Image from 'next/image'
 
 export default function AuthPage() {
-	const [mounted, setMounted] = useState(false)
 	const { theme, setTheme } = useTheme()
-
-	useEffect(() => {
-		setMounted(true)
-	}, [])
-
-	if (!mounted) {
-		return null
-	}
 
 	return (
 		<div className="min-h-screen flex flex-col lg:flex-row">

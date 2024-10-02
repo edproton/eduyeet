@@ -17,7 +17,7 @@ import { Switch } from '@/components/ui/switch'
 // 	CommandList
 // } from '@/components/ui/command'
 // import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { toast } from '@/hooks/use-toast'
+import { toast } from '@/components/ui/use-toast'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Separator } from '@/components/ui/separator'

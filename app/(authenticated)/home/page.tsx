@@ -73,7 +73,7 @@ export default function HomePage() {
 	}
 
 	if (userData.metadata.isQualificationsConfigured && userData.type !== PersonType.Tutor) {
-		return <BookingsComponent studentId={userData.personId} />
+		return <BookingsComponent />
 	}
 
 	return <UserAnalyticsBoard />
